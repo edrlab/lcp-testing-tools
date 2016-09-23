@@ -1,0 +1,12 @@
+# Configuration sample to use with readium-lcp-server-docker
+# Replace /tmp by the right directory
+lcp_encrypt:
+  cmd_path: /tmp/readium-lcp-server-docker/bin/lcpencrypt
+lcp_server:
+  base_uri: http://localhost:8989
+  external_repository_path: /tmp/readium-lcp-server-docker/lcp-server/files
+  internal_repository_path: /files
+  auth:
+    user: lcp
+    passwd: readium
+tmp_path: /tmp
