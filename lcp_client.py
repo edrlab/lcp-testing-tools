@@ -172,7 +172,23 @@ class LCPEpubTestSuite:
 
         # Send request
         response = self.__do_lcp_client_request("POST", url, body)
-        response_body = response.read()
+
+        # Store license in working path
+        response_body = ""
+        filename = "{0}.lcpl".format(self.encrypted_epub_content_id)
+        file_path = os.path.join(self.manager.working_path, filename)
+
+        with open(file_path, 'wb') as f:
+            while not response.closed:
+                buffer = response.read(2**12) # 4Kbytes
+
+                if len(buffer) == 0:
+                    break
+
+                response_body += buffer.decode("utf-8")
+                f.write(buffer)
+
+        logger.info("License stored in {0}".format(file_path))
         logger.debug("Response body: {0}".format(response_body))
 
     def create_publication(self):
@@ -184,6 +200,21 @@ class LCPEpubTestSuite:
 
         # Send request
         response = self.__do_lcp_client_request("POST", url, body)
+
+        # Store publication in working path
+        filename = "{0}.epub".format(self.encrypted_epub_content_id)
+        file_path = os.path.join(self.manager.working_path, filename)
+
+        with open(file_path, 'wb') as f:
+            while not response.closed:
+                buffer = response.read(2**12)
+
+                if len(buffer) == 0:
+                    break
+
+                f.write(buffer) # 4Kbytes
+
+        logger.info("Publication stored in {0}".format(file_path))
 
     def __do_lcp_client_request(self, method, url, body=None):
         """Connect to lcp server and do a request
@@ -263,6 +294,9 @@ class LCPTestManager:
         self.lcp_server_auth_digest = None
         self.lcp_server_external_repository_path = None
         self.lcp_server_internal_repository_path = None
+
+        # LCPL and publication files are stored in this directory
+        self.working_path = None
         self.load_config(config_path)
 
     def load_config(self, config_path):
@@ -283,6 +317,13 @@ class LCPTestManager:
                 config = yaml.load(stream)
             except yaml.YAMLError as e:
                 raise TestManagerInitializationError("config: {0}", e)
+
+            # Get working_path
+            try:
+                self.working_path = config['working_path']
+            except KeyError:
+                raise TestManagerInitializationError(
+                    "config: working_path not defined")
 
             # Get lcpencrypt command path
             try:

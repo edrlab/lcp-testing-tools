@@ -9,4 +9,4 @@ lcp_server:
   auth:
     user: lcp
     passwd: readium
-tmp_path: /tmp
+working_path: /tmp
