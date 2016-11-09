@@ -1,0 +1,116 @@
+{
+	"title": "Readium LSD schema",
+
+	"description": "Created by Drminside in 2016.",
+
+	"type": "object",
+
+	"definitions": {
+		"dateString": {
+			"type": "string",
+			"format": "date-time"
+		},
+		"uriString": {
+			"type": "string"
+		},
+		"updatedObject": {
+			"type": "object",
+			"properties": {
+				"license": {
+					"$ref": "#/definitions/dateString"
+				},
+				"status": {
+					"$ref": "#/definitions/dateString"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["license",
+			"status"]
+		},
+		"linkObject": {
+			"type": "object",
+			"properties": {
+				"href": {
+					"$ref": "#/definitions/uriString"
+				},
+        "rel": {
+					"type": "string"
+				},
+				"title": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
+				"templated": {
+					"type": "boolean"
+				},
+				"profile": {
+					"$ref": "#/definitions/uriString"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["href"]
+		},
+		"potentialRightsObject": {
+			"type": "object",
+			"properties": {
+				"end": {
+					"$ref": "#/definitions/dateString"
+				}
+			}
+		},
+		"eventObject": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"type": "string",
+					"pattern": "license|register|renew|return"
+				},
+				"name": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"timestamp": {
+					"$ref": "#/definitions/dateString"
+				}
+			},
+			"additionalProperties": false
+		}
+	},
+	"properties": {
+		"id": {
+			"type": "string"
+		},
+		"status": {
+			"type": "string",
+			"pattern": "ready|active|returned|revoked|cancelled|expired"
+		},
+		"message": {
+			"type": "string"
+		},
+		"updated": {
+			"$ref": "#/definitions/updatedObject"
+		},
+		"links": {
+      "type:": "array",
+      "minItems": 0,
+			"items": {"%ref": "#/definitions/linkObject"}
+		},
+		"potential_rights": {
+			"$ref": "#/definitions/potentialRightsObject"
+		},
+		"events": {
+			"type:": "array",
+      "minItems": 0,
+			"items": {"%ref": "#/definitions/eventObject"}
+		}
+	},
+	"additionalProperties": false,
+	"required": ["id",
+	"status",
+	"updated",
+	"links"]
+}
