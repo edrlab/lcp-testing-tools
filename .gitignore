@@ -1,2 +1,4 @@
+.DS_Store
 *.pyc
 etc/config.yml
+*.class
