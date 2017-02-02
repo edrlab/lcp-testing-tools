@@ -157,6 +157,7 @@ public class LcpLicenseSignatureVerifier {
 	private String m_lcp_canonicalJsonString = null;
 	private String m_lcp_base64certificate = null;
 	private String m_lcp_signature = null;
+	private String m_lcp_signatureAlgorithmURI = null;
 	private void loadLcp() {
 
 		try {
@@ -177,26 +178,27 @@ public class LcpLicenseSignatureVerifier {
 				System.out.println("\n\n");
 			}
 
-			String lcp_signatureAlgorithmURI = null;
-
 			Type type = new TypeToken<Map<String, Object>>(){}.getType();
 			Map<String, Object> lcpJsonMap = m_Gson.fromJson(lcp_jsonString, type);
 			for (String key : lcpJsonMap.keySet()) {
 				if (key.equalsIgnoreCase("signature")) {
 					Map<String, Object> signatureJsonMap = m_Gson.fromJson(m_Gson.toJson(lcpJsonMap.get(key)), type);
 					
-					lcp_signatureAlgorithmURI = (String)signatureJsonMap.get("algorithm");
+					m_lcp_signatureAlgorithmURI = (String)signatureJsonMap.get("algorithm");
 					if (m_verbose) {
 						System.out.println("\n\n");
 						System.out.println(ANSI_CYAN + "----------------------------------------------------------" + ANSI_RESET);
 						System.out.println(ANSI_CYAN + "LCP signature algorithm URI from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_CYAN + "]: " + ANSI_RESET);
-						System.out.println(lcp_signatureAlgorithmURI);
+						System.out.println(m_lcp_signatureAlgorithmURI);
 						System.out.println(ANSI_CYAN + "----------------------------------------------------------" + ANSI_RESET);
 						System.out.println("\n\n");
 					}
 
-					if (lcp_signatureAlgorithmURI == null || !lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")) {					
-						System.err.println(ANSI_RED + "### Bad signature algorithm in LCP license [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] ('" + lcp_signatureAlgorithmURI + "' should be 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256').\n\n" + ANSI_RESET);
+					if (m_lcp_signatureAlgorithmURI == null
+					|| (!m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
+					&& !m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"))
+					) {					
+						System.err.println(ANSI_RED + "### Bad signature algorithm in LCP license [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] ('" + m_lcp_signatureAlgorithmURI + "' should be 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256' or 'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256').\n\n" + ANSI_RESET);
 
 						System.exit(1); // FAILURE
 						return;
@@ -289,7 +291,13 @@ public class LcpLicenseSignatureVerifier {
 
 	private void verifyLcpSignature(String lcp_canonicalJsonString, String lcp_signature, X509Certificate providerCertificate) {
 		try {
+			
+			//"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
 			Signature signatureVerifier = Signature.getInstance("SHA256withRSA");
+
+			if (m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256")) {
+				signatureVerifier = Signature.getInstance("SHA256withECDSA");
+			}
 
 			PublicKey publicKey = providerCertificate.getPublicKey();
 			signatureVerifier.initVerify(publicKey);
@@ -375,6 +383,7 @@ public class LcpLicenseSignatureVerifier {
 		// m_lcp_base64certificate
 		// m_lcp_canonicalJsonString
 		// m_lcp_signature
+		// m_lcp_signatureAlgorithmURI
 		loadLcp();
 
 		// m_providerCertificate
