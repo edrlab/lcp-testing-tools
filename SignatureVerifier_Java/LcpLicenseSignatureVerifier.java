@@ -124,6 +124,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(ANSI_RED + "### Problem loading root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_RED + "].\n\n" + ANSI_RESET);
 
 			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
 			
 			System.exit(1); // FAILURE
 			return;
@@ -148,6 +149,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(ANSI_RED + "### Problem loading provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "].\n\n" + ANSI_RESET);
 
 			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
 			
 			System.exit(1); // FAILURE
 			return;
@@ -261,6 +263,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(ANSI_RED + "### Problem loading LCP license from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "].\n\n" + ANSI_RESET);
 
 			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
 			
 			System.exit(1); // FAILURE
 			return;
@@ -283,6 +286,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(ANSI_RED + "### Error verifying the provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] against the root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_RED + "] using public key [" + ANSI_YELLOW + publicKey + ANSI_RED + "].\n\n" + ANSI_RESET);
 
 			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
 			
 			System.exit(1); // FAILURE
 			return;
@@ -325,6 +329,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(ANSI_RED + "### Problem verifying the LCP signature for [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] against the root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_RED + "].\n\n" + ANSI_RESET);
 
 			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
 			
 			System.exit(1); // FAILURE
 			return;
