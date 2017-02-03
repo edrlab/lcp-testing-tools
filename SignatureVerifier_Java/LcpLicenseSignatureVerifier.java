@@ -29,6 +29,8 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.Security;
+import java.security.Provider;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,6 +38,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class LcpLicenseSignatureVerifier {
 		
@@ -294,13 +297,26 @@ public class LcpLicenseSignatureVerifier {
 	}
 
 	private void verifyLcpSignature(String lcp_canonicalJsonString, String lcp_signature, X509Certificate providerCertificate) {
+
+		Provider[] providers = Security.getProviders();
+		for (Provider provider : providers) {
+			System.out.println(ANSI_BLUE + provider.getName() + ANSI_RESET);
+		}
+
+		// http://www.bouncycastle.org/wiki/pages/viewpage.action?pageId=362269
+		// BouncyCastleProvider.PROVIDER_NAME ("BC")
+		//
+		// default: "SunEC"
+		String providerName = BouncyCastleProvider.PROVIDER_NAME;
+
 		try {
-			
-			//"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
-			Signature signatureVerifier = Signature.getInstance("SHA256withRSA");
+			Signature signatureVerifier = null;
 
 			if (m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256")) {
-				signatureVerifier = Signature.getInstance("SHA256withECDSA");
+				signatureVerifier = Signature.getInstance("SHA256withECDSA", providerName);
+			} else {
+				//"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+				signatureVerifier = Signature.getInstance("SHA256withRSA", providerName);
 			}
 
 			PublicKey publicKey = providerCertificate.getPublicKey();
@@ -309,7 +325,11 @@ public class LcpLicenseSignatureVerifier {
 			byte[] lcp_canonicalJsonBytes = lcp_canonicalJsonString.getBytes();
 			signatureVerifier.update(lcp_canonicalJsonBytes);
 
-			byte[] lcp_signatureBytes = Base64.decode(lcp_signature.getBytes());
+			byte[] lcp_signatureBytes_ = lcp_signature.getBytes();
+System.out.println(ANSI_BLUE + "S1: " + lcp_signatureBytes_.length + ANSI_RESET);
+			byte[] lcp_signatureBytes = Base64.decode(lcp_signatureBytes_);
+System.out.println(ANSI_BLUE + "S2: " + lcp_signatureBytes.length + ANSI_RESET);
+			
 			boolean verified = signatureVerifier.verify(lcp_signatureBytes);
 			
 			if (verified) {
@@ -380,6 +400,8 @@ public class LcpLicenseSignatureVerifier {
 	
 	private boolean m_verbose = false;
 	public void verify(boolean verbose) {
+		Security.addProvider(new BouncyCastleProvider());
+
 		m_verbose = verbose;
 
 		// m_rootCertificate
