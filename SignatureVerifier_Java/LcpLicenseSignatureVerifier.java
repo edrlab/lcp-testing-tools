@@ -14,10 +14,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.io.ByteArrayOutputStream;
 
 import java.lang.reflect.Type;
 
+import javax.xml.bind.DatatypeConverter;
+
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,6 +36,7 @@ import java.security.cert.X509Certificate;
 import java.security.Security;
 import java.security.Provider;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -39,6 +44,16 @@ import java.util.TreeMap;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1OutputStream;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DEROutputStream;
 
 public class LcpLicenseSignatureVerifier {
 		
@@ -314,12 +329,32 @@ public class LcpLicenseSignatureVerifier {
 			byte[] lcp_canonicalJsonBytes = lcp_canonicalJsonString.getBytes();
 			signatureVerifier.update(lcp_canonicalJsonBytes);
 
-			byte[] lcp_signatureBytes_ = lcp_signature.getBytes();
-System.out.println(ANSI_BLUE + "S1: " + lcp_signatureBytes_.length + ANSI_RESET);
-			byte[] lcp_signatureBytes = Base64.decode(lcp_signatureBytes_);
-System.out.println(ANSI_BLUE + "S2: " + lcp_signatureBytes.length + ANSI_RESET);
+			byte[] lcp_signatureBytes_b64 = lcp_signature.getBytes();
+if (m_verbose) System.out.println(ANSI_BLUE + "SIG BASE64 ENCODED: " + lcp_signatureBytes_b64.length + ANSI_RESET);
+
+			byte[] lcp_signatureBytes = Base64.decode(lcp_signatureBytes_b64);
+if (m_verbose) System.out.println(ANSI_BLUE + "SIG BASE64 DECODED: " + lcp_signatureBytes.length + ANSI_RESET);
+        	
+			byte[] lcp_signatureBytes_TO_VERIFY = lcp_signatureBytes;
 			
-			boolean verified = signatureVerifier.verify(lcp_signatureBytes);
+			if (m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256")) {
+				byte[] r = Arrays.copyOfRange(lcp_signatureBytes, 0, lcp_signatureBytes.length / 2);
+				byte[] s = Arrays.copyOfRange(lcp_signatureBytes, lcp_signatureBytes.length / 2, lcp_signatureBytes.length);
+				ASN1EncodableVector asn1EncodableVector = new ASN1EncodableVector();
+				asn1EncodableVector.add(new ASN1Integer(new BigInteger(1, r)));
+				asn1EncodableVector.add(new ASN1Integer(new BigInteger(1, s)));
+				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+				DEROutputStream derOutputStream = new DEROutputStream(byteArrayOutputStream);
+				derOutputStream.writeObject(new DERSequence(asn1EncodableVector));
+				byte[] lcp_signatureBytes_DER = byteArrayOutputStream.toByteArray();
+				//byte[] lcp_signatureBytes_DER = new DERSequence(asn1EncodableVector).getEncoded();
+if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureBytes_DER.length + ANSI_RESET);
+
+				lcp_signatureBytes_TO_VERIFY = lcp_signatureBytes_DER;
+			}
+
+
+			boolean verified = signatureVerifier.verify(lcp_signatureBytes_TO_VERIFY);
 			
 			if (verified) {
 				System.out.println("\n\n");
@@ -397,9 +432,11 @@ System.out.println(ANSI_BLUE + "S2: " + lcp_signatureBytes.length + ANSI_RESET);
 	public void verify(boolean verbose, boolean useBouncyCastle) {
 		Security.addProvider(new BouncyCastleProvider());
 
-		Provider[] providers = Security.getProviders();
-		for (Provider provider : providers) {
-			System.out.println(ANSI_BLUE + provider.getName() + ANSI_RESET);
+		if (verbose) {
+			Provider[] providers = Security.getProviders();
+			for (Provider provider : providers) {
+				System.out.println(ANSI_BLUE + provider.getName() + ANSI_RESET);
+			}
 		}
 
 		if (useBouncyCastle) {
