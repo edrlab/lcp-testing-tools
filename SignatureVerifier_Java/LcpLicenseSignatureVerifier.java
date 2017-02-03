@@ -275,7 +275,7 @@ public class LcpLicenseSignatureVerifier {
 			if (m_verbose) {
 				System.out.println("\n\n");
 				System.out.println(ANSI_CYAN + "----------------------------------------------------------" + ANSI_RESET);
-				System.out.println(ANSI_CYAN + "Succesfully verified the provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_CYAN + "] against the root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_CYAN + "] using public key [" + ANSI_YELLOW + publicKey + ANSI_CYAN + "].\n\n" + ANSI_RESET);
+				System.out.println(ANSI_CYAN + "Successfully verified the provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_CYAN + "] against the public key [" + ANSI_YELLOW + publicKey + ANSI_CYAN + "] from the root certificate [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_CYAN + "].\n\n" + ANSI_RESET);
 				System.out.println(ANSI_CYAN + "----------------------------------------------------------" + ANSI_RESET);
 				System.out.println("\n\n");
 			}
