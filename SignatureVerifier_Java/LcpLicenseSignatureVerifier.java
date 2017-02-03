@@ -112,7 +112,7 @@ public class LcpLicenseSignatureVerifier {
 	private X509Certificate m_rootCertificate = null;
 	private void loadRootCertificate() {
 		try {
-			CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+			CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", m_providerName_certificates);
 			m_rootCertificate = (X509Certificate)certificateFactory.generateCertificate(new FileInputStream(m_certificateFile));
 
 			if (m_verbose) {
@@ -137,7 +137,7 @@ public class LcpLicenseSignatureVerifier {
 	private X509Certificate m_providerCertificate = null;
 	private void loadProviderCertificate(String base64certificate) {
 		try {
-			CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+			CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", m_providerName_certificates);
 			m_providerCertificate = (X509Certificate)certificateFactory.generateCertificate(new ByteArrayInputStream(Base64.decode(base64certificate.getBytes())));
 			
 			if (m_verbose) {
@@ -298,25 +298,14 @@ public class LcpLicenseSignatureVerifier {
 
 	private void verifyLcpSignature(String lcp_canonicalJsonString, String lcp_signature, X509Certificate providerCertificate) {
 
-		Provider[] providers = Security.getProviders();
-		for (Provider provider : providers) {
-			System.out.println(ANSI_BLUE + provider.getName() + ANSI_RESET);
-		}
-
-		// http://www.bouncycastle.org/wiki/pages/viewpage.action?pageId=362269
-		// BouncyCastleProvider.PROVIDER_NAME ("BC")
-		//
-		// default: "SunEC"
-		String providerName = BouncyCastleProvider.PROVIDER_NAME;
-
 		try {
 			Signature signatureVerifier = null;
 
 			if (m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256")) {
-				signatureVerifier = Signature.getInstance("SHA256withECDSA", providerName);
+				signatureVerifier = Signature.getInstance("SHA256withECDSA", m_providerName_ecdsa);
 			} else {
 				//"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
-				signatureVerifier = Signature.getInstance("SHA256withRSA", providerName);
+				signatureVerifier = Signature.getInstance("SHA256withRSA", m_providerName_rsa);
 			}
 
 			PublicKey publicKey = providerCertificate.getPublicKey();
@@ -398,9 +387,26 @@ System.out.println(ANSI_BLUE + "S2: " + lcp_signatureBytes.length + ANSI_RESET);
 		return jsonMap;
 	}
 	
+	
 	private boolean m_verbose = false;
-	public void verify(boolean verbose) {
+	
+	String m_providerName_certificates = "SUN";
+	String m_providerName_ecdsa = "SunEC";
+	String m_providerName_rsa = "SunRsaSign";
+
+	public void verify(boolean verbose, boolean useBouncyCastle) {
 		Security.addProvider(new BouncyCastleProvider());
+
+		Provider[] providers = Security.getProviders();
+		for (Provider provider : providers) {
+			System.out.println(ANSI_BLUE + provider.getName() + ANSI_RESET);
+		}
+
+		if (useBouncyCastle) {
+			m_providerName_certificates = BouncyCastleProvider.PROVIDER_NAME;
+			m_providerName_ecdsa = BouncyCastleProvider.PROVIDER_NAME;
+			m_providerName_rsa = BouncyCastleProvider.PROVIDER_NAME;
+		}
 
 		m_verbose = verbose;
 
@@ -475,7 +481,16 @@ System.out.println(ANSI_BLUE + "S2: " + lcp_signatureBytes.length + ANSI_RESET);
 			System.out.println("\n\n");
 		}
 
+		boolean useBouncyCastle = false;
+		if (args.length >= 4 && args[3].equalsIgnoreCase("bc")) {
+			useBouncyCastle = true;
+			
+			System.out.println("\n\n");
+			System.out.println(ANSI_BLUE + "## use BouncyCastle crypto provider ##" + ANSI_RESET);
+			System.out.println("\n\n");
+		}
+
 		LcpLicenseSignatureVerifier verifier = new LcpLicenseSignatureVerifier(certificateFile, lcpFile);
-		verifier.verify(verbose);
+		verifier.verify(verbose, useBouncyCastle);
 	}
 }
