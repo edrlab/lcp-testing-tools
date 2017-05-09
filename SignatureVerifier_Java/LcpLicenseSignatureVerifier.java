@@ -475,7 +475,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 		
 		String certificateFilePath = args[0];
 		String certificateFilePath_lowerCase = certificateFilePath.toLowerCase();
-		if (!certificateFilePath_lowerCase.endsWith(".crt") && !certificateFilePath_lowerCase.endsWith(".pem")) {
+		if (!certificateFilePath_lowerCase.endsWith(".crt") && !certificateFilePath_lowerCase.endsWith(".pem") && !certificateFilePath_lowerCase.endsWith(".cer")) {
 			System.err.println(ANSI_RED + "### Input parameter (1) [" + ANSI_YELLOW + certificateFilePath + ANSI_RED + "] must be filename with extension '.crt' or '.pem'.\n\n" + ANSI_RESET);
 
 			System.err.println(USAGE_INFO);
