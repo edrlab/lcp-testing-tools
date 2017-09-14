@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:oasis:names:tc:opendocument:xmlns:container" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" targetNamespace="urn:oasis:names:tc:opendocument:xmlns:container" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:annotation>
+		<xs:documentation>
+			Schema of an encryption.xml document in an EPUB/LCP protected publication.
+		</xs:documentation>
+	</xs:annotation>
+	<xs:import namespace="http://www.w3.org/2001/04/xmlenc#" schemaLocation="xenc-schema.xsd"/>
+	<xs:element name="encryption">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="xenc:EncryptedData" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

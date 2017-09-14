@@ -2,37 +2,52 @@
 
 """
 LSD Test suite
+
+Copyright EDRLab, 2017
+
+Check the features of a License Document Server.
+
+History
+    Created By Cyrille Lebeaupin / EDRLab, 2017
+    Includes code from Ahram Oh / DRM Inside, 2016
+    Updated by Laurent Le Meur / EDRLab, 2017 
+
+    Note: the requests library was prefered compared over the http.client lib for the sake of clarity of the code.
 """
 
 import json
 import logging
 import os.path
-import urllib.parse
-
+import datetime
+import dateutil.parser
+import requests
 import jsonschema
-import util
+import re
 from exception import TestSuiteRunningError
 from base_test_suite import BaseTestSuite
 
 LOGGER = logging.getLogger(__name__)
+
 JSON_SCHEMA_DIR_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     'schema')
 
+DEFAULT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
+
+
+
 class LSDTestSuite(BaseTestSuite):
     """LSD test suite"""
 
-    def __init__(self, config_manager, epub_path, license_path):
+    def __init__(self, config_manager, license_path):
         """
         Args:
             config_manager (ConfigManager): ConfigManager object
-            epub_path (str): Path to an epub (epub+lcpl)
             license_path (str): Path to an lcpl file
         """
 
-        self.epub_path = epub_path
+        self.config_manager = config_manager
         self.license_path = license_path
-        self.lsd_client = util.HttpClient(config_manager.lsd_server)
 
         # LCP License
         self.lcpl = None
@@ -40,19 +55,24 @@ class LSDTestSuite(BaseTestSuite):
         # License Status Document
         self.lsd = None
 
+        # test device id and name
+        self.device_id = 0
+        self.device_name = ""
+
     def _extract_lsd_url(self, lcpl):
         """
-        Extract status document url from LCP license
+        Extract the status document url from the LCP license
 
         Args:
-            lcpl: lcp license as a json dictionary
+            lcpl: lcp license as a json object
 
         Return:
-            json dictionary
+            url of the status document
         """
 
         if "links" not in lcpl:
             # No links
+            LOGGER.warning("No links in the license")
             return None
 
         for link in lcpl['links']:
@@ -65,48 +85,49 @@ class LSDTestSuite(BaseTestSuite):
         # No status link found
         return None
 
-    def _get_lcpl(self, epub_path):
+    def _check_datetime_updated(self, date_time):
         """
-        Returns license document in json
-
-        Args:
-            epub_path: Encrypted epub path
-
-        Return:
-            json dictionary
+        Check the date related to the status update: 
+        it should have been updated after a successfull action
         """
+        LOGGER.info("The status was last updated on: %s", self.lsd['updated']['status'])   
+        status_datetime = dateutil.parser.parse(date_time)
+        td = datetime.timedelta(minutes=10)
+        if status_datetime + td < datetime.datetime.now(datetime.timezone.utc):
+            LOGGER.warning("Seems that the timestamp was not updated!") 
+            # todo: we'll raise an error when DeMarque has corrected this on register
 
-        lcpl_content = util.extract_zip_content(
-            epub_path, 'META-INF/license.lcpl').decode(encoding='utf-8')
-        lcpl = json.loads(lcpl_content)
-        LOGGER.debug("LCP license for %s: %s", epub_path, lcpl_content)
-        return lcpl
-
-
-    def _get_lsd(self, url, device_id, device_name):
+    def test_fetch_lsd(self):
         """
-        Retrieve status document
+        Fetch a License Status Document
 
-        Args:
-            url: url used to retrieve status document
-            device_id: Id of device
-            device_name: Name of device
+        note about the use of https with Python 3.6+ on OSX:
+        read http://stackoverflow.com/questions/27835619/ssl-certificate-verify-failed-error
+        => install certificates /Applications/Python\ 3.6/Install\ Certificates.command 
+
         """
+        lsd_url = self._extract_lsd_url(self.lcpl)
+        if lsd_url == None:
+            raise TestSuiteRunningError("No status document url found in the license")  
+      
+        r = requests.get(lsd_url)
+        if r.status_code != requests.codes.ok:
+            raise TestSuiteRunningError(
+                "Impossible to fetch the License Status Document at %s: error %d".format(
+                    lsd_url, r.status_code)
+                )
+        try:
+            self.lsd = r.json()            
+        except ValueError as err:
+            LOGGER.debug(r.text)
+            raise TestSuiteRunningError("Malformed JSON License Status Document")
 
-        query_string = urllib.parse.urlencode({
-            "device_id": device_id,
-            "device_name": device_name
-        })
-        lsd_url = url + "?" + query_string
-        response = self.lsd_client.do_request('GET', lsd_url)
-        lsd_content = response.read().decode(encoding='utf-8')
-        lsd = json.loads(lsd_content)
-        LOGGER.debug("LSD for url %s: %s", lsd_url, lsd_content)
-        return lsd
+        LOGGER.debug("The License Status Document is available")   
+
 
     def test_validate_lsd(self):
         """
-        Validate LSD
+        Validate a License Status Document
         """
 
         lsd_json_schema_path = os.path.join(
@@ -119,16 +140,231 @@ class LSDTestSuite(BaseTestSuite):
             except jsonschema.ValidationError as err:
                 raise TestSuiteRunningError(err)
 
+        LOGGER.debug("The License Status Document is valid")   
+
+        LOGGER.info("The status of the license is: %s", self.lsd['status'])  
+        LOGGER.info("The status was last updated on: %s", self.lsd['updated']['status'])   
+        LOGGER.info("The license was last updated on: %s", self.lsd['updated']['license'])   
+        if 'events' in self.lsd:
+            LOGGER.info("The logged events are: %s", self.lsd['events'])   
+
+
+    def test_fetch_license(self):
+        """ Fetch a license from the URL found in the status doc, then validates it """
+
+        try:
+            license = next((l for l in self.lsd['links'] if l['rel'] == 'license'))
+        except StopIteration as err:
+            raise TestSuiteRunningError(
+                "Missing a 'license' link in the status document")
+        
+        license_url = license['href']
+        LOGGER.debug("Fetch license at url %s:", license_url)   
+
+        # fetch the license
+        r = requests.get(license_url)
+        try:
+            self.lcpl = r.json()            
+        except ValueError as err:
+            LOGGER.debug(r.text)
+            raise TestSuiteRunningError("Malformed JSON License Document")
+        LOGGER.debug("The License is available")   
+
+        # validate the license
+        lcpl_json_schema_path = os.path.join(
+            JSON_SCHEMA_DIR_PATH, 'lcpl_schema.json')
+
+        with open(lcpl_json_schema_path) as schema_file:
+            lcpl_json_schema = json.loads(schema_file.read())
+            try:
+                jsonschema.validate(self.lcpl, lcpl_json_schema, format_checker=jsonschema.FormatChecker())
+            except jsonschema.ValidationError as err:
+                raise TestSuiteRunningError(err)
+
+        LOGGER.debug("The up to date License is available and valid")   
+        
+
+    def test_register(self):
+        """ Register a device for the current license.
+            Check there is no error in case of multiple registering
+            Check the error is registering is not possible.
+        """
+        try:
+            license = next((l for l in self.lsd['links'] if l['rel'] == 'register'))
+        except StopIteration as err:
+            LOGGER.warning("'register' link missing in the status document")
+            return
+
+        # removes the 'blank' part in the templated URL
+        register_url = re.sub("{.*?}",'',license['href'])
+
+        LOGGER.debug("Register at url %s", register_url)
+
+        # id and name are required in the LSD spec
+        q = {"id": self.device_id, "name": self.device_name}
+        r = requests.post(register_url, params=q)
+
+        # check the return code vs the license status
+        if r.status_code != requests.codes.ok:
+            if r.status_code == 400 and self.lsd['status'] in ["expired", "returned","cancelled","revoked"]:
+                LOGGER.info("The device could not be registered because the license is now unusable (%s)", 
+                    self.lsd['status'])
+                return
+            # other cases are weird    
+            raise TestSuiteRunningError(
+                "Impossible to register the device at %s: error %d".format(
+                    register_url, r.status_code)
+                )
+        LOGGER.debug("The device was successfully registered")   
+
+        # if the register operation succeeds, 
+        # the server MUST return an updated License Status Document
+        try:
+            self.lsd = r.json()            
+        except ValueError as err:
+            LOGGER.debug(r.text)
+            raise TestSuiteRunningError("Malformed JSON License Status Document")
+
+        # check that the status date has been updated
+        self._check_datetime_updated(self.lsd['updated']['status'])
+
+
+    def test_renew(self):
+        """ Renew a license if renewable.
+            Check the error if the license is not (or not anymmore) renewable.
+        """
+        try:
+            license = next((l for l in self.lsd['links'] if l['rel'] == 'renew'))
+        except StopIteration as err:
+            LOGGER.warning("'renew' link missing in the status document")
+            return
+
+        # removes the 'blank' part in the templated URL
+        renew_url = re.sub("{.*?}",'',license['href'])
+
+        LOGGER.debug("Renew at url %s", renew_url)
+
+        # let's renew for 10 days after the current end date
+        license_end = dateutil.parser.parse(self.lcpl['rights']['end']) + datetime.timedelta(days=10)
+
+        end = license_end.strftime(DEFAULT_DATETIME_FORMAT)
+
+        # id and name are not required by the LSD spec, but let's add them
+        q = {"id": self.device_id, "name": self.device_name, "end": end}
+        r = requests.put(renew_url, params=q)
+
+        # check the return code vs the license status
+        license_status = self.lsd['status']
+        if r.status_code != requests.codes.ok:
+            if r.status_code == 403:
+                LOGGER.info("Incorrect renewal period; requested end is %s, potential end is %s", 
+                    end, self.lsd['potential_rights']['end'])    
+                return
+            elif r.status_code >= 400 and license_status not in ["active"]:
+                LOGGER.info("The publication can't be renewed properly, as the license is in state %s", 
+                     license_status)    
+                return
+           
+            # other cases are weird    
+            raise TestSuiteRunningError(
+                "Impossible to renew the publication at %s: error %d; license status is %s".format(
+                    renew_url, r.status_code, license_status)
+                )
+        LOGGER.debug("The publication was successfully renewed")   
+
+        # if the renew operation succeeds, 
+        # the server MUST return an updated License Status Document
+        try:
+            self.lsd = r.json()            
+        except ValueError as err:
+            LOGGER.debug(r.text)
+            raise TestSuiteRunningError("Malformed JSON License Status Document")
+
+        # check that the status date has been updated
+        self._check_datetime_updated(self.lsd['updated']['status'])
+        # check that the license date has been updated
+        self._check_datetime_updated(self.lsd['updated']['license'])
+        # check the new status
+        if (self.lsd['status'] != 'active') :
+              raise TestSuiteRunningError(
+                "The new status %s does not fit: must be active".format(self.lsd['status'])
+                )
+         
+        return
+    
+    def test_return(self):
+        """ Return a license if returnable.
+            Check the error if the license is not (or not anymmore) returnable.
+        """
+        try:
+            license = next((l for l in self.lsd['links'] if l['rel'] == 'return'))
+        except StopIteration as err:
+            LOGGER.warning("'return' link missing in the status document")
+            return
+
+        # removes the 'blank' part in the templated URL
+        return_url = re.sub("{.*?}",'',license['href'])
+
+        LOGGER.debug("Return at url %s", return_url)
+
+        # id and name are not required by the LSD spec, but let's add them
+        q = {"id": self.device_id, "name": self.device_name}
+        r = requests.put(return_url, params=q)
+
+        # check the return code vs the license status
+        license_status = self.lsd['status']
+        if r.status_code != requests.codes.ok:
+            if r.status_code == 403 and license_status in ["expired","returned","cancelled"]:
+                LOGGER.info("The publication can't be returned, as the license is in state %s", 
+                    license_status)    
+                return
+            elif r.status_code == 400 and license_status in ["ready", "revoked"]:
+                LOGGER.info("The publication can't be returned properly, as the license is in state %s", 
+                     license_status)    
+                return
+           
+            # other cases are weird    
+            raise TestSuiteRunningError(
+                "Impossible to return the publication at %s: error %d; license status is %s".format(
+                    return_url, r.status_code, license_status)
+                )
+        LOGGER.debug("The publication was successfully returned")   
+
+        # if the return operation succeeds, 
+        # the server MUST return an updated License Status Document
+        try:
+            self.lsd = r.json()            
+        except ValueError as err:
+            LOGGER.debug(r.text)
+            raise TestSuiteRunningError("Malformed JSON License Status Document")
+
+        # check that the status date has been updated
+        self._check_datetime_updated(self.lsd['updated']['status'])
+
+        # check the new status
+        if (license_status == 'active' and self.lsd['status'] != 'returned') or \
+           (license_status == 'ready' and self.lsd['status'] != 'cancelled'):
+              raise TestSuiteRunningError(
+                "The new status %s does not fit with the previous one %s".format(
+                    license_status, self.lsd['status'])
+                )
+         
+        return
+
     def initialize(self):
         """Initialize tests"""
 
-        if not os.path.exists(self.epub_path):
+        if not os.path.exists(self.license_path):
             raise TestSuiteRunningError(
-                "Epub file does not exist {0}".format(self.epub_path))
+                "License file {0} not found".format(self.license_path))
+        
+        with open(self.license_path) as json_file:    
+            self.lcpl = json.load(json_file)
 
-        self.lcpl = self._get_lcpl(self.epub_path)
-        lsd_url = self._extract_lsd_url(self.lcpl)
-        self.lsd = self._get_lsd(lsd_url, "1", "My device")
+        #todo: make them random
+        self.device_id = 12345
+        self.device_name = "EDRLab testing tools"
+
 
     def get_tests(self):
         """
@@ -136,5 +372,10 @@ class LSDTestSuite(BaseTestSuite):
         """
 
         return [
-            "validate_lsd"
+            "fetch_lsd",
+            "validate_lsd",
+            "fetch_license",
+            "register",
+            "renew",
+            "return"
             ]

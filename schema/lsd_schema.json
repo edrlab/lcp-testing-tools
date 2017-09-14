@@ -86,7 +86,7 @@
 		},
 		"status": {
 			"type": "string",
-			"pattern": "ready|active|returned|revoked|cancelled|expired"
+			"enum": ["ready","active","returned","revoked","cancelled","expired"]
 		},
 		"message": {
 			"type": "string"
@@ -97,7 +97,7 @@
 		"links": {
       "type:": "array",
       "minItems": 0,
-			"items": {"%ref": "#/definitions/linkObject"}
+			"items": {"$ref": "#/definitions/linkObject"}
 		},
 		"potential_rights": {
 			"$ref": "#/definitions/potentialRightsObject"
@@ -108,9 +108,9 @@
 			"items": {"%ref": "#/definitions/eventObject"}
 		}
 	},
-	"additionalProperties": false,
-	"required": ["id",
-	"status",
-	"updated",
-	"links"]
+	"additionalProperties": true,
+	"required":  ["id",
+								"status",
+								"updated",
+								"links"]
 }

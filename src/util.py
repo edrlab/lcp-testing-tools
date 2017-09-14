@@ -9,7 +9,6 @@ import http.client
 import subprocess
 import os.path
 import logging
-import zipfile
 
 LOGGER = logging.getLogger(__name__)
 
@@ -57,11 +56,17 @@ class HttpClient:
         if body is not None:
             LOGGER.debug("Request body: %s", body)
 
-        self.conn.request(method, url, body, headers)
-        response = self.conn.getresponse()
-        LOGGER.debug("Response status code: %s", response.status)
-        LOGGER.debug("Response headers: %s", response.getheaders())
-        return response
+        try:
+            self.conn.request(method, url, body, headers)
+            response = self.conn.getresponse()
+            LOGGER.debug("Response status code: %s", response.status)
+            LOGGER.debug("Response headers: %s", response.getheaders())
+
+            return response
+        # if the server does not responds, an exception ConnectionRefusedError occurs,
+        # to be catched by the caller.
+        except http.client.CannotSendRequest as err:
+            raise ConnectionRefusedError
 
 def init_logger(verbosity):
     """Globally update logger
@@ -100,16 +105,4 @@ def execute_command(cmd, cwd=None):
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
     return process.returncode, stdout, stderr
-
-
-def extract_zip_content(file_path, content_path):
-    """
-
-    """
-    content = None
-
-    with zipfile.ZipFile(file_path) as zip:
-        content = zip.open(content_path).read()
-
-    return content
 

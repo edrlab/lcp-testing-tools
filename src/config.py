@@ -18,7 +18,7 @@ class BasicServerConfig:
         """
 
         Args:
-            yaml_prefix (string): Yaml prefix in configuration file
+            yaml_prefix (string): Yaml prefix in the configuration file
             config (dict): Config dictionnary
         """
 
@@ -81,6 +81,8 @@ class LcpServerConfig(BasicServerConfig):
         self.yaml_prefix = yaml_prefix
         self.external_repository_path = None
         self.internal_repository_path = None
+        self.user_passphrase_hint = None
+        self.user_passphrase = None
 
         # Build config
         self.load_config(config)
@@ -118,6 +120,17 @@ class LcpServerConfig(BasicServerConfig):
                 "config: {0}.internal_repository_path not defined".format(
                     self.yaml_prefix))
 
+        if 'user_passphrase_hint' in config:
+            self.user_passphrase_hint = config['user_passphrase_hint']
+        else:
+            self.user_passphrase_hint = "Enter your passphrase"
+
+        if 'user_passphrase' in config:
+            self.user_passphrase = config['user_passphrase']
+        else:
+            self.user_passphrase = str(uuid.uuid4())
+
+
 class ConfigManager:
     """Config manager"""
 
@@ -129,8 +142,8 @@ class ConfigManager:
             config_path (str): Path to the configuration file
         """
 
-        # LCP encrypt
-        self.encrypt_cmd_path = None
+        # LCP encrypt parameters
+        self.lcp_encrypt_cmd_path = None
 
         # LCP server
         self.lcp_server = None
@@ -140,6 +153,9 @@ class ConfigManager:
 
         # LCPL and publication files are stored in this directory
         self.working_path = None
+
+        # Root certificate path
+        self.root_cert_path = None
 
         # Process config file
         self.load_config_file(config_path)
@@ -182,14 +198,14 @@ class ConfigManager:
 
         # Get lcpencrypt command path
         try:
-            self.encrypt_cmd_path = config['lcp_encrypt']['cmd_path']
+            self.lcp_encrypt_cmd_path = config['lcp_encrypt']['cmd_path']
         except KeyError:
             raise ConfigParseError(
-                "config: lcp_encrypt.cmd_path not defined")
+                "config: lcp_encrypt/cmd_path not defined")
 
-        if not os.path.exists(self.encrypt_cmd_path):
+        if not os.path.exists(self.lcp_encrypt_cmd_path):
             raise ConfigParseError(
-                "config: lcp_encrypt.cmd_path does not exist")
+                "config: the lcp encrypt cmd path does not exist")
 
         # Parse lcp server config
         if 'lcp_server' in config:
@@ -200,3 +216,10 @@ class ConfigManager:
         if 'lsd_server' in config:
             self.lsd_server = BasicServerConfig(
                 "lsd_server", config['lsd_server'])
+
+        # Get root_cert_path
+        try:
+            self.root_cert_path = config['root_cert_path']
+        except KeyError:
+            raise ConfigParseError(
+                "config: root_cert_path not defined")

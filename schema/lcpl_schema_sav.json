@@ -1,0 +1,173 @@
+{
+	"$schema": "http://json-schema.org/schema#", 
+  "title": "Readium LCP license schema",
+	"description": "Created by EDRLab / L.Le Meur in 2017.",
+
+	"type": "object",
+
+	"definitions": {
+		"dateString": {
+			"type": "string"
+		},
+		"uriString": {
+			"type": "string",
+			"format": "uri"
+		},
+		"linkObject": {
+			"type": "object",
+			"properties": {
+				"href": {
+					"$ref": "#/definitions/uriString"
+				},
+        "rel": {
+					"enum": ["hint","publication","self","support"]
+				},
+				"title": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
+				"templated": {
+					"type": "boolean"
+				},
+				"profile": {
+					"$ref": "#/definitions/uriString"
+				},
+				"length": {
+					"type": "integer"
+				},
+				"hash": {
+					"type": "string"
+				}        
+			},
+			"additionalProperties": false,
+			"required": ["href",
+                   "rel"]
+		}
+	},
+	"properties": {
+		"id": {
+			"type": "string"
+		},
+		"issued": {
+			"type": "#/definitions/dateString"
+		},
+		"provider": {
+			"$ref": "#/definitions/uriString"
+		},
+		"updated": {
+			"type": "#/definitions/dateString"
+		},
+    "encryption": {
+      "type:": "object",
+      "content_key": {
+        "type": "object",
+        "properties": {
+          "encrypted_value": {
+            "type": "string"
+          },
+          "algorithm": {
+            "$ref": "#/definitions/uriString"
+          },
+          "additionalProperties": false,
+          "required": ["encrypted_value",
+                       "algorithm"]
+        }
+      },
+      "user_key": {
+        "type": "object",
+        "properties": {
+          "text_hint": {
+            "type": "string"
+          },
+          "algorithm": {
+            "$ref": "#/definitions/uriString"
+          },
+          "key_check": {
+            "type": "string"
+          },
+          "additionalProperties": false,
+          "required": ["text_hint",
+                       "algorithm",
+                       "key_check"]
+        },
+        "additionalProperties": false,
+        "required": ["content_key",
+                     "user_key"]
+      }
+    },
+		"links": {
+      "type:": "array",
+      "minItems": 0,
+			"items": {"$ref": "#/definitions/linkObject"}
+		},
+    "rights": {
+      "type": "object",
+      "properties": {
+          "print": {
+            "type": "integer"
+          },
+          "copy": {
+            "type": "integer"
+          },
+          "start": {
+      			"type": "#/definitions/dateString"
+          },
+          "end": {
+      			"type": "#/definitions/dateString"
+          } 
+      }
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "encrypted": {
+      			"type": "array",
+            "minItems": 0,
+            "items": {
+              "type": "string"
+            }
+          } 
+      }
+    },
+    "signature": {
+        "type": "object",
+        "properties": {
+          "algorithm": {
+            "$ref": "#/definitions/uriString"
+          },
+          "certificate": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "additionalProperties": false,
+          "required": ["algorithm",
+                       "certificate",
+                       "value"]
+        },
+        "additionalProperties": false,
+        "required": ["content_key",
+                     "user_key"]
+      
+    }
+	},
+	"additionalProperties": false,
+	"required":  ["id",
+								"issued",
+								"provider",
+                "encryption",
+                "links"]
+}

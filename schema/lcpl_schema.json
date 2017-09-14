@@ -1,0 +1,187 @@
+{
+	"$schema": "http://json-schema.org/schema#", 
+  "title": "Readium LCP license v1.0 schema",
+	"description": "Copyright (c) 2017 The Readium Foundation.",
+	"description": "Edited by DRMInside, 2016.",
+	"description": "Edited by L.Le Meur / EDRLab, 2017.",
+
+	"type": "object",
+
+	"definitions": {
+		"base64String": {
+			"type": "string",
+			"pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$"
+		},
+		"dateString": {
+			"type": "string",
+			"format": "date-time"
+		},
+		"uriString": {
+			"type": "string",
+			"format": "uri"
+		},
+		"positiveInteger": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"linkObject": {
+			"type": "object",
+			"properties": {
+				"href": {
+					"type": "string"
+				},
+        "rel": {
+					"enum": ["hint","publication","self","support", "status"]
+				},
+				"title": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
+				"templated": {
+					"type": "boolean"
+				},
+				"profile": {
+					"$ref": "#/definitions/uriString"
+				},
+				"length": {
+					"$ref": "#/definitions/positiveInteger"
+				},
+				"hash": {
+					"$ref": "#/definitions/base64String"
+				}        
+			},
+			"additionalProperties": false,
+			"required": ["href",
+                   "rel"]
+		}
+	},
+	"properties": {
+		"id": {
+			"type": "string"
+		},
+		"issued": {
+			"$ref": "#/definitions/dateString"
+		},
+		"provider": {
+			"type": "string"
+		},
+		"updated": {
+			"$ref": "#/definitions/dateString"
+		},
+    "encryption": {
+      "type:": "object",
+			"properties": {
+				"profile": {
+					"enum": ["http://readium.org/lcp/basic-profile","http://readium.org/lcp/profile-1.0"]
+				},
+				"content_key": {
+					"type": "object",
+					"properties": {
+						"encrypted_value": {
+							"$ref": "#/definitions/base64String"
+						},
+						"algorithm": {
+							"enum": ["http://www.w3.org/2001/04/xmlenc#aes256-cbc"]
+						}
+					},
+					"additionalProperties": false,
+					"required": ["encrypted_value",
+											"algorithm"]
+				},
+				"user_key": {
+					"type": "object",
+					"properties": {
+						"text_hint": {
+							"type": "string"
+						},
+						"algorithm": {
+							"enum": ["http://www.w3.org/2001/04/xmlenc#sha256","http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"]
+						},
+						"key_check": {
+							"$ref": "#/definitions/base64String"
+						}
+					},
+					"additionalProperties": true,
+					"required": ["text_hint",
+											"algorithm",
+											"key_check"]
+				}
+			},
+      "additionalProperties": false,
+			"required": ["content_key",
+                     "user_key"]
+    },
+		"links": {
+      "type:": "array",
+      "minItems": 2,
+			"uniqueItems": true,
+			"items": {"$ref": "#/definitions/linkObject"}
+		},
+    "rights": {
+      "type": "object",
+      "properties": {
+          "print": {
+            "$ref": "#/definitions/positiveInteger"
+          },
+          "copy": {
+            "$ref": "#/definitions/positiveInteger"
+          },
+          "start": {
+      			"$ref": "#/definitions/dateString"
+          },
+          "end": {
+      			"$ref": "#/definitions/dateString"
+          } 
+      }
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "encrypted": {
+      			"type": "array",
+            "minItems": 0,
+						"uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          } 
+      }
+    },
+    "signature": {
+    	"type": "object",
+      "properties": {
+        "algorithm": {
+        	"$ref": "#/definitions/uriString"
+        },
+      	"certificate": {
+        	"$ref": "#/definitions/base64String"
+        },
+        "value": {
+          "$ref": "#/definitions/base64String"
+        }
+      },      
+			"additionalProperties": false,
+			"required": ["algorithm",
+										"certificate",
+										"value"]
+    }
+	},
+	"additionalProperties": false,
+	"required":  ["id",
+								"issued",
+								"provider",
+                "encryption",
+                "links",
+								"signature"]
+}
