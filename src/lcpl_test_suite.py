@@ -149,6 +149,6 @@ class LCPLTestSuite(BaseTestSuite):
             "content_key",
             "key_check",
             "user_info",
-            #"signature",
+            "signature",
             "encrypted_resources"
             ]
