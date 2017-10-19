@@ -48,6 +48,8 @@ lsd_server:
     passwd: readium
 # working_path: Working path of test suite
 working_path: /tmp
+# root_cert_path: path to the root certificate file, for signature validation
+root_cert_path: /cert/cacert.pem
 ```
 
 ## Run tests
