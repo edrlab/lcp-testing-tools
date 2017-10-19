@@ -34,11 +34,16 @@ lcp_server:
   external_repository_path: /tmp/readium-lcp-server-docker/lcp-server/files
   # internal_repository_path: Path where LCP server files are stored
   internal_repository_path: /files
+  # user_passphrase_hint: User passphrase hint used for license generation
+  user_passphrase_hint: The name of your favorite book
+  # user_passphrase: User passphrase  used for license generation
+  user_passphrase: harry potter
   auth:
     # user: Auth username to connect to lcp server
     user: lcp
     # passwd: Auth password to connect to lcp server
     passwd: readium
+    
 lsd_server:
   base_uri: http://localhost:8990
   auth:
@@ -46,6 +51,7 @@ lsd_server:
     user: lsd
     # passwd: Auth password to connect to lsd server
     passwd: readium
+    
 # working_path: Working path of test suite
 working_path: /tmp
 # root_cert_path: path to the root certificate file, for signature validation
