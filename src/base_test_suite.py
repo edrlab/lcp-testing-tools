@@ -42,10 +42,10 @@ class BaseTestSuite:
 
             # Run every test
             for method_name in test_methods:
-                LOGGER.debug("Test start: %s", method_name)
+                LOGGER.info("Test start: %s", method_name)
                 method = getattr(self, method_name)
                 method()
-                LOGGER.debug("Passed Test: %s", method_name)
+                LOGGER.debug("Test succeeded")
         except TestSuiteRunningError as err:
             LOGGER.error(err)
             return False
