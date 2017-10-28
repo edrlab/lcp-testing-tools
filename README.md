@@ -4,6 +4,8 @@
 
 This software is developed using Python 3. You must install it on your computer before you can use the tool.
 
+The `lcpencrypt` module (from the readium-lcp-server project in the Readium repository), must be installed locally if the processing of unprotected EPUB files (--epub option) is required.
+
 ## Recommendation
 
 To avoid a pollution of you global python environment, we advise you to use venv, unless you need to debug it using e.g. VS Code:
@@ -92,37 +94,37 @@ Then you can launch different tests:
 Encrypt an EPUB file, generate a license and a protected file:
 
 ```
-python3 src/client.py -vv config.yml -e <path-unprotected-epub>
+python3 src/lcpcheck.py -vv config.yml -e <path-unprotected-epub>
 ```
 
 Check a protected EPUB file:
 
 ```
-python3 src/client.py -vv config.yml -p <path-protected-epub>
+python3 src/lcpcheck.py -vv config.yml -p <path-protected-epub>
 ```
 
 Check an LCP liense:
 
 ```
-python3 src/client.py -vv config.yml -l <path-lcp-license>
+python3 src/lcpcheck.py -vv config.yml -l <path-lcp-license>
 ```
 
 Check the dynamic features (register, renew, return) of an LCP liense:
 
 ```
-python3 src/client.py -vv config.yml -s <path-lcp-license>
+python3 src/lcpcheck.py -vv config.yml -s <path-lcp-license>
 ```
 
 The different tests can be easily chained. For exemple, if you have a protected EPUB file at hands, you can check the file, the embedded license and its dynamic features using: 
 
 ```
-python3 src/client.py -vv config.yml -p <path-protected-epub> -l -s
+python3 src/lcpcheck.py -vv config.yml -p <path-protected-epub> -l -s
 ```
 
 And if you have an LCP license at hands, you can check the license and its dynamic features using: 
 
 ```
-python3 src/client.py -vv config.yml -l <path-lcp-license> -s
+python3 src/lcpcheck.py -vv config.yml -l <path-lcp-license> -s
 ```
 
 The verbose option allows you to get more and more verbose information:
