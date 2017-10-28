@@ -112,12 +112,15 @@ class LSDTestSuite(BaseTestSuite):
         if lsd_url == None:
             raise TestSuiteRunningError("No status document url found in the license")  
       
-        r = requests.get(lsd_url)
-        if r.status_code != requests.codes.ok:
-            raise TestSuiteRunningError(
-                "Impossible to fetch the License Status Document at {}: error {}".format(
-                    lsd_url, r.status_code)
-                )
+        try:
+            r = requests.get(lsd_url)
+            if r.status_code != requests.codes.ok:
+                raise TestSuiteRunningError(
+                    "Impossible to fetch the License Status Document at {}: error {}".format(
+                        lsd_url, r.status_code)
+                    )
+        except requests.exceptions.RequestException as err:
+            raise TestSuiteRunningError(err)
         try:
             self.lsd = r.json()            
         except ValueError as err:
@@ -198,11 +201,12 @@ class LSDTestSuite(BaseTestSuite):
 
         # display some license values
         LOGGER.info("date issued {}, updated {}".format(
-            self.lcpl['issued'], self.lcpl['updated']))
+            self.lcpl['issued'], self.lcpl['updated'] if "updated" in self.lcpl else "never"))
         LOGGER.info("rights print {}, copy {}".format(
             self.lcpl['rights']['print'], self.lcpl['rights']['copy']))
         LOGGER.info("rights start {}, end {}".format(
-            self.lcpl['rights']['start'], self.lcpl['rights']['end']))
+            self.lcpl['rights']['start'] if "start" in self.lcpl['rights'] else "none", 
+            self.lcpl['rights']['end'] if "end" in self.lcpl['rights'] else "none"))
         
     def test_register(self):
         """ Register a device for the current license.
@@ -258,7 +262,7 @@ class LSDTestSuite(BaseTestSuite):
         try:
             license = next((l for l in self.lsd['links'] if l['rel'] == 'renew'))
         except StopIteration as err:
-            LOGGER.warning("'renew' link missing in the status document")
+            LOGGER.warning("No 'renew' link in the status document. ok if buy")
             return
 
         # removes the 'blank' part in the templated URL
@@ -334,7 +338,7 @@ class LSDTestSuite(BaseTestSuite):
         try:
             license = next((l for l in self.lsd['links'] if l['rel'] == 'return'))
         except StopIteration as err:
-            LOGGER.warning("'return' link missing in the status document")
+            LOGGER.warning("No 'return' link in the status document. ok if buy")
             return
 
         # removes the 'blank' part in the templated URL
