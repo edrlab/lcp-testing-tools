@@ -29,6 +29,7 @@ by
 
 ## Install the required Python modules
 
+```
 pip3 install jsonschema
 pip3 install pyyaml
 pip3 install lxml
@@ -37,6 +38,7 @@ pip3 install pyopenssl
 pip3 install strict-rfc3339
 pip3 install rfc3987
 pip3 install python-dateutil
+```
 
 ## Configuration file
 
