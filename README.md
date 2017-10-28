@@ -2,16 +2,29 @@
 
 ## Requirements
 
-  - **python 3.x**
-  - **jsonschema**
-  
+This software is developed using Python 3. You must install it on your computer before you can use the tool.
 
 ## Recommendation
 
-To avoid pollution of you global python environment, we advise you to use venv (unless you want to debug easily using e.g. VS Code):
+To avoid a pollution of you global python environment, we advise you to use venv, unless you need to debug it using e.g. VS Code:
 ```
 python3 -m venv Pythonenv/lcpcheck
 ```
+
+## Prepare VS Code for debugging the app
+
+In VSCode, in launch.json, remplace
+
+```
+"pythonPath": "${config.python.pythonPath}"
+```
+
+by 
+
+```
+"pythonPath": "/Library/Frameworks/Python.framework/Versions/3.6/bin/python3"
+
+
 
 ## Install the required Python modules
 
