@@ -22,7 +22,7 @@ import util
 from exception import TestSuiteRunningError
 
 LOGGER = logging.getLogger(__name__)
-DEFAULT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
+W3C_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
 
 class LCPSTestSuite(BaseTestSuite):
     """EPUB test suite"""
@@ -95,9 +95,9 @@ class LCPSTestSuite(BaseTestSuite):
                 "print": 10,
                 "copy": 2048,
                 "start": license_start_datetime.\
-                    strftime(DEFAULT_DATETIME_FORMAT),
+                    strftime(W3C_DATETIME_FORMAT),
                 "end": license_end_datetime.\
-                    strftime(DEFAULT_DATETIME_FORMAT)
+                    strftime(W3C_DATETIME_FORMAT)
             }
         }
 
