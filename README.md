@@ -3,72 +3,116 @@
 ## Requirements
 
   - **python 3.x**
-
   - **jsonschema**
+  
 
-## Recommendations
+## Recommendation
 
-To avoid pollution of you global python environment, we advise you to use virtualenv:
+To avoid pollution of you global python environment, we advise you to use venv (unless you want to debug easily using e.g. VS Code):
 ```
-virtualenv <virtualenv_dir>
+python3 -m venv Pythonenv/lcpcheck
 ```
 
-and install jsonschema:
+## Install the required Python modules
 
 ```
-<virtualenv_dir>/bin/pip3 install jsonschema
+pip3 install jsonschema
+pip3 install pyyaml
+pip3 install lxml
+pip3 install requests
+pip3 install pyopenssl
+pip3 install strict-rfc3339
+pip3 install rfc3987
+pip3 install python-dateutil
 ```
+
 # Configuration file
 
 A sample of configuration file is provided in etc/config.yml.dist
 
 ```
-# Configuration sample to use with readium-lcp-server-docker
+# Configuration of the lcp testing tool
 lcp_encrypt:
-  # cmd_path: Path the lcpencrypt command
-  cmd_path: /tmp/readium-lcp-server-docker/bin/lcpencrypt
+  # cmd_path: Path to the lcpencrypt command
+  cmd_path: /Work/gospace/bin/lcpencrypt
+  
 lcp_server:
-  # base_uri: Url of lcp server
-  base_uri: http://localhost:8989
-  # external_repository_path: External path where LCP server files are stored
-  external_repository_path: /tmp/readium-lcp-server-docker/lcp-server/files
-  # internal_repository_path: Path where LCP server files are stored
-  internal_repository_path: /files
-  # user_passphrase_hint: User passphrase hint used for license generation
-  user_passphrase_hint: The name of your favorite book
-  # user_passphrase: User passphrase  used for license generation
-  user_passphrase: harry potter
+  # base_uri: Url of the lcp server
+  base_uri: <lcp-server-uri>
   auth:
     # user: Auth username to connect to lcp server
-    user: lcp
+    user: <value>
     # passwd: Auth password to connect to lcp server
-    passwd: readium
-    
+    passwd:"<value>
+  # external_repository_path: External path where LCP server files are stored 
+  # useful if the server is installed on a docker
+  external_repository_path: <lcpfiles>
+  # internal_repository_path: Path where LCP server files are stored
+  internal_repository_path: <lcpfiles>
+  # user_passphrase_hint: User passphrase hint used for license generation
+  user_passphrase_hint: <hint-value>
+  # user_passphrase: User passphrase  used for license generation
+  user_passphrase: <passphrase-value>
+
 lsd_server:
-  base_uri: http://localhost:8990
+  # base_uri: Url of the lsd server
+  base_uri: <lsd-server-uri>
   auth:
     # user: Auth username to connect to lsd server
-    user: lsd
+    user: <value>
     # passwd: Auth password to connect to lsd server
-    passwd: readium
-    
-# working_path: Working path of test suite
-working_path: /tmp
-# root_cert_path: path to the root certificate file, for signature validation
-root_cert_path: /cert/cacert.pem
+    passwd: <value>
+# working_path: Working path of the test suite
+working_path: <value>
+# root_cert_path: Path to the root certificate file
+root_cert_path: <value>
 ```
 
 ## Run tests
 
-Before launching tests you require :
+Testing requires:
 
-  - a specific config.yml
-  - a clear sample epub
+  - a customized config.yml (or .yaml)
+  - an unprotected EPUB file
+  - or a protected EPUB file
+  - or an LCP license file
 
-Then you can launch tests:
+Then you can launch different tests:
+
+Encrypt an EPUB file, generate a license and a protected file:
 
 ```
-<virtualenv_dir>/bin/python3 src/client.py [-vvv] <config_file> <epub_file>
+python3 src/client.py -vv config.yml -e <path-unprotected-epub>
+```
+
+Check a protected EPUB file:
+
+```
+python3 src/client.py -vv config.yml -p <path-protected-epub>
+```
+
+Check an LCP liense:
+
+```
+python3 src/client.py -vv config.yml -l <path-lcp-license>
+```
+
+Check the dynamic features (register, renew, return) of an LCP liense:
+
+```
+python3 src/client.py -vv config.yml -s <path-lcp-license>
+```
+
+The different tests can be easily chained. For exemple, if you have a protected EPUB file at hands, you can check the file, the embedded license and its dynamic features using: 
+
+```
+python3 src/client.py -vv config.yml -p <path-protected-epub> -l -s
+```
+
+And if you have an LCP license at hands, you can check the license and its dynamic features using: 
+
+```
+python3 src/client.py -vv config.yml -l <path-lcp-license> -s
 ```
 
 The verbose option allows you to get more and more verbose information:
