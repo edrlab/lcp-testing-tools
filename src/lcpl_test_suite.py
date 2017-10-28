@@ -15,6 +15,8 @@ import json
 import jsonschema
 import os
 import uuid
+import datetime
+import dateutil.parser
 import subprocess
 from base_test_suite import BaseTestSuite
 from exception import TestSuiteRunningError
@@ -24,6 +26,7 @@ LOGGER = logging.getLogger(__name__)
 JSON_SCHEMA_DIR_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     'schema')
+
 
 class LCPLTestSuite(BaseTestSuite):
     """License test suite"""
@@ -48,8 +51,8 @@ class LCPLTestSuite(BaseTestSuite):
         """
 
         # validate the license using the JSON schema, includes:
-        # check the profile Value (basic or 1.0)
-        # check the encryption method (aes-cbc), user key (sha256) and signature algorithm (ecdsa-sha256)
+        #   check the profile Value (basic or 1.0)
+        #   check the encryption method (aes-cbc), user key (sha256) and signature algorithm (ecdsa-sha256)
 
         lcpl_json_schema_path = os.path.join(
             JSON_SCHEMA_DIR_PATH, 'lcpl_schema.json')
@@ -77,8 +80,6 @@ class LCPLTestSuite(BaseTestSuite):
         if res != 2:
             raise TestSuiteRunningError(
                 "Missing 'hint' or 'publication' link in the license file")
-
-        
            
         pass
 
@@ -104,7 +105,7 @@ class LCPLTestSuite(BaseTestSuite):
 
     def test_signature(self):
         # check the signature value using the java signature tool
-        # this java code returns 1 if the signature is not valid 
+        # this java code returns 1+ if the signature is not valid 
         cert_path = self.config_manager.root_cert_path
         if not os.path.exists(cert_path):
             raise TestSuiteRunningError(
@@ -114,9 +115,10 @@ class LCPLTestSuite(BaseTestSuite):
         run_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), run_script)
             
         args = [run_path, cert_path, self.license_path]
-        r = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        r = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
 
         if r.returncode > 0:
+            LOGGER.error("return code is {}".format(r.returncode))
             raise TestSuiteRunningError(r.stdout.strip())
         LOGGER.debug(r.stdout.strip())
 
@@ -124,7 +126,23 @@ class LCPLTestSuite(BaseTestSuite):
         # check the each encrypted resource is correctly encrypted and compressed 
         pass
 
-        
+    def test_rights(self):
+        # check the rights expressed in the license
+        rights = self.lcpl['rights']
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if 'start' in rights:
+            LOGGER.info("start: {}".format(rights['start']))
+            if now <  dateutil.parser.parse(rights['start']):
+                LOGGER.info("The start date is not reached")
+        if 'end' in rights:
+            LOGGER.info("end  : {}".format(rights['end']))
+            if now > dateutil.parser.parse(rights['end']):
+                LOGGER.info("The license has expired")
+        if 'copy' in rights:
+            LOGGER.info("copy : {}".format(rights['copy']))
+        if 'print' in rights:
+            LOGGER.info("print: {}".format(rights['print']))
+                
     def initialize(self):
         """Initialize tests"""
 
@@ -150,5 +168,6 @@ class LCPLTestSuite(BaseTestSuite):
             "key_check",
             "user_info",
             "signature",
-            "encrypted_resources"
+            "encrypted_resources",
+            "rights"
             ]
