@@ -23,12 +23,10 @@ by
 
 ```
 "pythonPath": "/Library/Frameworks/Python.framework/Versions/3.6/bin/python3"
-
-
+```
 
 ## Install the required Python modules
 
-```
 pip3 install jsonschema
 pip3 install pyyaml
 pip3 install lxml
@@ -37,9 +35,8 @@ pip3 install pyopenssl
 pip3 install strict-rfc3339
 pip3 install rfc3987
 pip3 install python-dateutil
-```
 
-# Configuration file
+## Configuration file
 
 A sample of configuration file is provided in etc/config.yml.dist
 
