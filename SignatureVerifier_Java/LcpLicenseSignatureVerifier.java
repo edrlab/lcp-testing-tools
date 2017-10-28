@@ -169,7 +169,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
 			
-			System.exit(1); // FAILURE
+			System.exit(2); // FAILURE
 			return;
 		}
 	}
@@ -178,6 +178,7 @@ public class LcpLicenseSignatureVerifier {
 	private String m_lcp_base64certificate = null;
 	private String m_lcp_signature = null;
 	private String m_lcp_signatureAlgorithmURI = null;
+
 	private void loadLcp() {
 
 		try {
@@ -220,7 +221,7 @@ public class LcpLicenseSignatureVerifier {
 					) {					
 						System.err.println(ANSI_RED + "### Bad signature algorithm in LCP license [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] ('" + m_lcp_signatureAlgorithmURI + "' should be 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256' or 'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256').\n\n" + ANSI_RESET);
 
-						System.exit(1); // FAILURE
+						System.exit(3); // FAILURE
 						return;
 					}
 					
@@ -283,7 +284,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
 			
-			System.exit(1); // FAILURE
+			System.exit(4); // FAILURE
 			return;
 		}
 	}
@@ -306,7 +307,7 @@ public class LcpLicenseSignatureVerifier {
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
 			
-			System.exit(1); // FAILURE
+			System.exit(5); // FAILURE
 			return;
 		}
 	}
@@ -367,7 +368,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 			System.out.println("\n\n");
 			System.out.println(ANSI_RED + "### INVALID SIGNATURE ###" + ANSI_RESET);
 			System.out.println("\n\n");
-			System.exit(1); // FAILURE
+			System.exit(7); // FAILURE
 			return;
 		} catch (Exception e) {
 			System.err.println(ANSI_RED + "### Problem verifying the LCP signature for [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] against the root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_RED + "].\n\n" + ANSI_RESET);
@@ -375,7 +376,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
 			
-			System.exit(1); // FAILURE
+			System.exit(8); // FAILURE
 			return;
 		}
 	}
@@ -391,6 +392,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 
 			if (jsonObj instanceof Map) {
 				String subJsonString = m_Gson.toJson(jsonObj);
+
 				jsonMap.put(key, sortJsonKeysAlphabetically(subJsonString));
 
 			} else if (jsonObj instanceof String) {
@@ -408,13 +410,17 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 					if (subJsonObj instanceof Map) {
 						String subJsonString = m_Gson.toJson(subJsonObj);
 						arr.set(i, sortJsonKeysAlphabetically(subJsonString));
+					} else if (subJsonObj instanceof String) {
+							//  NOOP
+					} else if (subJsonObj instanceof Double) {
+						//  NOOP
 					} else {
-						System.out.println(ANSI_RED + "Unexpected JSON type?" + ANSI_RESET);
-						System.out.println(subJsonObj);
+						System.out.println(ANSI_RED + "Unexpected JSON type in an array" + ANSI_RESET);
+						System.err.println(subJsonObj);
 					}
 				}
 			} else {
-				System.out.println(ANSI_RED + "Unexpected JSON type?" + ANSI_RESET);
+				System.out.println(ANSI_RED + "Unexpected JSON type in the tree" + ANSI_RESET);
 				System.err.println(jsonObj);
 			}
 		}
@@ -481,7 +487,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 			System.err.println(USAGE_INFO);
 			return;
 		}
-		
+	
 		File certificateFile = new File(certificateFilePath);
 		if (!certificateFile.exists()) {
 			System.err.println(ANSI_RED + "### Input parameter (1) [" + ANSI_YELLOW + certificateFilePath + ANSI_RED + "] file does not exist.\n\n" + ANSI_RESET);
