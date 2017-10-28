@@ -26,9 +26,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("configfile", help="path to the yaml configuration file")
     parser.add_argument("-e", "--epub", help="protect the epub file indicated as value, generate a license and a protected file")
-    parser.add_argument("-p", "--pfile", nargs='?', const='-', help="check a protected file, retrieve a license; optional value: path to an LCP protected epub file")
-    parser.add_argument("-l", "--lcpl", nargs='?', const='-', help="check an LCP license; optional value: path to an LCP license if -p was not used")
-    parser.add_argument("-s","--lsd", nargs='?', const='-', help="launch lsd tests; optional value: path to an LCP license if -p or -l was not used")
+    parser.add_argument("-p", "--pfile", nargs='?', const='-', help="check a protected file, retrieve a license; don't give the path to an LCP protected epub file if -e is used.")
+    parser.add_argument("-l", "--lcpl", nargs='?', const='-', help="check an LCP license; don't give the path to an LCP license if -p  is used")
+    parser.add_argument("-s","--lsd", nargs='?', const='-', help="launch lsd tests; don't give the path to an LCP license if -p or -l is used")
     parser.add_argument("-v", "--verbosity", action="count", help="increase output verbosity")
     args = parser.parse_args()
 
