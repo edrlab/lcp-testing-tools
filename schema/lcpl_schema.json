@@ -28,7 +28,7 @@
 			"type": "object",
 			"properties": {
 				"href": {
-					"type": "string"
+					"$ref": "#/definitions/uriString"
 				},
         "rel": {
 					"enum": ["hint","publication","self","support", "status"]
@@ -65,7 +65,7 @@
 			"$ref": "#/definitions/dateString"
 		},
 		"provider": {
-			"type": "string"
+			"$ref": "#/definitions/uriString"
 		},
 		"updated": {
 			"$ref": "#/definitions/dateString"
@@ -103,7 +103,7 @@
 							"$ref": "#/definitions/base64String"
 						}
 					},
-					"additionalProperties": true,
+					"additionalProperties": false,
 					"required": ["text_hint",
 											"algorithm",
 											"key_check"]

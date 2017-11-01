@@ -111,6 +111,7 @@
 	"additionalProperties": true,
 	"required":  ["id",
 								"status",
+								"message",
 								"updated",
 								"links"]
 }
