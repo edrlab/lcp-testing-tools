@@ -60,7 +60,7 @@ class LCPLTestSuite(BaseTestSuite):
         with open(lcpl_json_schema_path) as schema_file:
             lcpl_json_schema = json.loads(schema_file.read())
             try:
-                jsonschema.validate(self.lcpl, lcpl_json_schema, format_checker=jsonschema.FormatChecker())
+                jsonschema.validate(self.lcpl, lcpl_json_schema)
             except jsonschema.ValidationError as err:
                 raise TestSuiteRunningError(err)
 
