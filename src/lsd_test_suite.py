@@ -147,14 +147,16 @@ class LSDTestSuite(BaseTestSuite):
 
         LOGGER.debug("The License Status Document is valid")   
 
+        # these are required properties -> if absent, has been spotted by the schema validation
         LOGGER.info("The status of the license is: %s", self.lsd['status'])  
         LOGGER.info("The status was last updated on: %s", self.lsd['updated']['status'])   
         LOGGER.info("The license was last updated on: %s", self.lsd['updated']['license'])   
         LOGGER.info("The user message is: %s", self.lsd['message'])   
+        
         if 'potential_rights' in self.lsd:
-            LOGGER.info("The max loan datetime is: %s", self.lsd['potential_rights']['end'])   
+            LOGGER.info("The potential rights datetime is: %s", self.lsd['potential_rights']['end'])   
         else:
-            LOGGER.info("No max loan datetime")  
+            LOGGER.info("No potential rights datetime in the status document")  
         if 'events' in self.lsd:
             for event in self.lsd['events']:
                 LOGGER.info("Event: type {}, timestamp {}, id {}, name {}".format(
