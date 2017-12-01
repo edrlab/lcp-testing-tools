@@ -127,7 +127,9 @@ class LSDTestSuite(BaseTestSuite):
             LOGGER.debug(r.text)
             raise TestSuiteRunningError("Malformed JSON License Status Document")
 
-        LOGGER.debug("The License Status Document is available")   
+        LOGGER.debug("The License Status Document is available")  
+        #LOGGER.debug(self.lsd)   
+ 
 
 
     def test_validate_lsd(self):
@@ -165,7 +167,9 @@ class LSDTestSuite(BaseTestSuite):
                     event['id'],
                     event['name'])
                 )   
-            
+        else:
+            LOGGER.info("No events in the status document")  
+                
 
     def test_fetch_license(self):
         """ Fetch a license from the URL found in the status doc, then validates it """
@@ -417,7 +421,7 @@ class LSDTestSuite(BaseTestSuite):
             "fetch_lsd",
             "validate_lsd",
             "fetch_license",
-            "register",
-            "renew",
-            "return"
+            #"register",
+            #"renew",
+            #"return"
             ]
