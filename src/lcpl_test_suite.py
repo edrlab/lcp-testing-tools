@@ -77,9 +77,14 @@ class LCPLTestSuite(BaseTestSuite):
                     raise TestSuiteRunningError(
                         "A 'publication' link must have an 'application/epub+zip' type")              
                 res +=1
-        if res != 2:
+            if l['rel'] == 'status':
+                if l['type'] != None and l['type'] != "application/vnd.readium.license.status.v1.0+json":
+                    raise TestSuiteRunningError(
+                        "A 'status' link must have an 'application/vnd.readium.license.status.v1.0+json' type")
+                res +=1
+        if res != 3:
             raise TestSuiteRunningError(
-                "Missing 'hint' or 'publication' link in the license file")
+                "Missing 'hint', 'publication' or 'status' link in the license file")
            
         pass
 
@@ -123,7 +128,7 @@ class LCPLTestSuite(BaseTestSuite):
         LOGGER.debug(r.stdout.strip())
 
     def test_encrypted_resources(self):
-        # check the each encrypted resource is correctly encrypted and compressed 
+        # check that each encrypted resource is correctly encrypted and compressed 
         pass
 
     def test_rights(self):

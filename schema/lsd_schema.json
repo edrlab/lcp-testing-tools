@@ -40,7 +40,7 @@
 					"type": "string"
 				},
 				"type": {
-					"type": "string"
+					"type": "string"					
 				},
 				"templated": {
 					"type": "boolean"
@@ -65,19 +65,22 @@
 			"properties": {
 				"type": {
 					"type": "string",
-					"pattern": "license|register|renew|return"
+					"enum": ["license","register","renew","return"]
 				},
 				"name": {
-					"type": "string"
+					"type": "string",
+					"minLength": 1
 				},
 				"id": {
-					"type": "string"
+					"type": "string",
+					"minLength": 1
 				},
 				"timestamp": {
 					"$ref": "#/definitions/dateString"
 				}
 			},
-			"additionalProperties": false
+			"additionalProperties": false,
+			"required": ["type","id","name","timestamp"]
 		}
 	},
 	"properties": {
@@ -105,13 +108,9 @@
 		"events": {
 			"type:": "array",
       "minItems": 0,
-			"items": {"%ref": "#/definitions/eventObject"}
+			"items": {"$ref": "#/definitions/eventObject"}
 		}
 	},
 	"additionalProperties": true,
-	"required":  ["id",
-								"status",
-								"message",
-								"updated",
-								"links"]
+	"required":  ["id","status","message","updated","links"]
 }
