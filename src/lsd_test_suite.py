@@ -184,7 +184,17 @@ class LSDTestSuite(BaseTestSuite):
         LOGGER.debug("Fetch license at url %s:", license_url)   
 
         # fetch the license
-        r = requests.get(license_url)
+        try:
+            r = requests.get(license_url)
+            if r.status_code != requests.codes.ok:
+                raise TestSuiteRunningError(
+                    "Impossible to fetch the License  at {}: error {}".format(
+                        license_url, r.status_code)
+                    )
+        except requests.exceptions.RequestException as err:
+            raise TestSuiteRunningError(err)
+
+        # parse the license
         try:
             self.lcpl = r.json()            
         except ValueError as err:
@@ -236,7 +246,7 @@ class LSDTestSuite(BaseTestSuite):
 
         # check the return code vs the license status
         if r.status_code != requests.codes.ok:
-            LOGGER.warning("Error structure: {}".format(r.text))
+            LOGGER.warning("Error registering: {}".format(r.text))
             if r.status_code == 400:
                 if self.lsd['status'] in ["expired", "returned","cancelled","revoked"]:
                     LOGGER.info("The device could not be registered because the license is now unusable (%s)", 
