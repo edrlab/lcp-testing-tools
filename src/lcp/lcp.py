@@ -79,3 +79,14 @@ class License():
     return self.crypto.check_userkey(passphrase, user_key_hash_algo,
                 key_check, license_id, content_key_encryption_algo)
 
+  def check_certificate(self, cacert):
+    certificate = self.get_certificate()
+    issued = self.get_issued()
+    return self.crypto.verify_certificate(certificate, cacert, issued)
+
+  def check_signature(self):
+    certificate = self.get_certificate()
+    signature = self.get_signature()
+    canonical = self.get_canonical()
+    return self.crypto.verify_sign_sha256(signature, certificate, canonical)
+

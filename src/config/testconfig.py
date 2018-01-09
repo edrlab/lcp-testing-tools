@@ -20,19 +20,16 @@ class TestConfig:
       self.test = yaml_config[test] if test else None
       self.common = yaml_config['common']
 
-
-  def license(self):
-    return self.test['license']
-
+  # Common config for all tests
   def schema(self):
     return self.common['license']['schema']
+
+  def cacert(self):
+    return str(self.common['crypto']['cacert'])
 
   def crypto_package(self):
     sys.path.insert(0, self.common['crypto']['package'])
     return __import__('crypto')
-
-  def cacert(self):
-    return str(self.common['crypto']['cacert'])
 
   def publication_mimetype(self):
     return self.PUBLICATION_MIMETYPE
@@ -40,5 +37,12 @@ class TestConfig:
   def status_mimetype(self):
     return self.STATUS_MIMETYPE
 
+  # Test specific config
+  def license(self):
+    return self.test['license']
+
   def passphrase(self):
     return str(self.test['passphrase'])
+
+  def epub(self):
+    return self.test['epub']

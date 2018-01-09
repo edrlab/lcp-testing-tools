@@ -15,3 +15,7 @@ test1.1:
 test1.2:
   license: '/home/me/licenses/l1.lcpl'
   passphrase: 'test_passphrase'
+
+test2.1:
+  epub: '/home/me/epub/e1'
+  passphrase: 'test_passphrase'
