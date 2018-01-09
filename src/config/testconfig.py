@@ -5,6 +5,9 @@ import sys
 
 class TestConfig:
 
+  PUBLICATION_MIMETYPE="application/epub+zip"
+  STATUS_MIMETYPE="application/vnd.readium.license.status.v1.0+json"
+
   def __init__(self, test, config=None):
     if not config:
       config = os.environ.get('LCP_TEST_CONFIG')
@@ -33,7 +36,7 @@ class TestConfig:
 
   def raw_license(self):
     with open(self.license_file, 'r') as stream:
-      return stream.read()
+      return str(stream.read())
 
   def json_license(self):
     with open(self.license_file, 'r') as stream:
@@ -50,3 +53,11 @@ class TestConfig:
   def cacert(self):
     return self.cacert_file
 
+  def publication_mimetype(self):
+    return self.PUBLICATION_MIMETYPE
+
+  def status_mimetype(self):
+    return self.STATUS_MIMETYPE
+
+  def passphrase(self):
+    return str(self.test['passphrase'])
