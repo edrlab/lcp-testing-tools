@@ -1,5 +1,7 @@
 from  unittest import TestCase
 from config.testconfig import TestConfig 
+from lcp.lcp import License
+
 from jsonschema import validate as jsonvalidate
 from dateutil.parser import parse as dateparse
 import time
@@ -14,58 +16,37 @@ class Test11(TestCase):
 
   def setUp(self):
     # get config
-    self.config = TestConfig(self)
+    self.config = TestConfig('test1.1')
     # get crypto from external crypto tool
     self.crypto = self.config.crypto_package()
+    self.license = License(self.config.license(), self.config.schema())
 
      
   def test_a_check_license_schema(self):
-    schema = self.config.json_license_schema()
-    license = self.config.json_license()
-    jsonvalidate(license, schema)
+      self.assertTrue(self.license.check_schema())
 
   def test_b_check_certificate_validity(self):
     cacert = self.config.cacert()
-    license = self.config.json_license()
-    certificate = license['signature']['certificate']
-    issued = license['issued']
-    unix_time = time.mktime(dateparse(issued).timetuple())  
-    self.assertTrue(self.crypto.verify_certificate(str(certificate), str(cacert), int(unix_time)))
+    certificate = self.license.get_certificate()
+    issued = self.license.get_issued()
+    self.assertTrue(self.crypto.verify_certificate(certificate, cacert, issued))
 
   def test_c_check_license_signature(self):
-    license = self.config.json_license()
-    certificate = str(license['signature']['certificate'])
+    certificate = self.license.get_certificate()
     # signature algorithm is checked by schema (test_a_check_license_schema)  
-    signature = str(license['signature']['value'])
-    canonical = self.crypto.canonical(self.config.raw_license())
+    signature = self.license.get_signature()
+    canonical = self.license.get_canonical()
     self.assertTrue(self.crypto.verify_sign_sha256(signature, certificate, canonical))
 
   def test_d_check_publication_mimetype(self):
-    license = self.config.json_license()
-    link = self._getlink(license, 'publication')
-    self.assertIsNotNone(link)
-    self.assertEquals(self.config.publication_mimetype(), link['type'])
+    self.assertEquals(self.config.publication_mimetype(), self.license.get_link('publication', 'type'))
   
   def test_e_check_status_mimetype(self):
-    license = self.config.json_license()
-    link = self._getlink(license, 'status')
-    self.assertIsNotNone(link)
-    self.assertEquals(self.config.status_mimetype(), link['type'])
+    self.assertEquals(self.config.status_mimetype(), self.license.get_link('status', 'type'))
    
   def test_f_check_content_key_format(self):
-    license = self.config.json_license()
-    # content_key value and content_key algorithm are checked by schema (test_a_check_license_schema)
-    content_key = self.crypto.base64_decode(str(license['encryption']['content_key']['encrypted_value']))
-    self.assertEquals(len(content_key), 64)
+    self.assertEquals(len(self.license.get_content_key()), 64)
 
   def test_g_check_key_check(self):
-    license = self.config.json_license()
-    # user_key algorithm is checked by schema (test_a_check_license_schema)
-    user_key_hash_algo = str(license['encryption']['user_key']['algorithm'])
-    content_key_encryption_algo = str(license['encryption']['content_key']['algorithm'])
-    user_key = self.crypto.userkey(self.config.passphrase(), user_key_hash_algo)
-    key_check = str(license['encryption']['user_key']['key_check'])
-    license_id = str(license['id'])
-    self.assertTrue(self.crypto.check_userkey(self.config.passphrase(), user_key_hash_algo,
-                key_check, license_id, content_key_encryption_algo))
+    self.assertTrue(self.license.check_user_key(self.config.passphrase()))
 

@@ -8,6 +8,6 @@ common:
     cacert: '/home/me/certs/cacert.pem'
 
 
-test11:
+test1.1:
   license: '/home/me/licenses/b1.lcpl'
   passphrase: 'test_passphrase'
