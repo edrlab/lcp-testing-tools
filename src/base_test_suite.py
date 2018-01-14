@@ -42,7 +42,7 @@ class BaseTestSuite:
 
             # Run every test
             for method_name in test_methods:
-                LOGGER.info("Test start: %s", method_name)
+                LOGGER.info("--------\nTest start: %s", method_name)
                 method = getattr(self, method_name)
                 method()
                 LOGGER.debug("Test succeeded")
