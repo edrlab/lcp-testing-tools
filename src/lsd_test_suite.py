@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """
-LSD Test suite
-
-Copyright EDRLab, 2017
-
 Check the features of a License Document Server.
 
 History
@@ -12,13 +8,16 @@ History
     Includes code from Ahram Oh / DRM Inside, 2016
     Updated by Laurent Le Meur / EDRLab, 2017 
 
-    Note: the requests library was prefered compared over the http.client lib for the sake of clarity of the code.
+Copyright 2017 European Digital Reading Lab. All rights reserved.
+Licensed to the Readium Foundation under one or more contributor license agreements.
+Use of this source code is governed by a BSD-style license
+that can be found in the LICENSE file exposed on Github (readium) in the project repository.
 """
 
 import json
 import logging
 import os.path
-import datetime
+import datetime, time
 import dateutil.parser
 import requests
 import jsonschema
@@ -28,10 +27,6 @@ from base_test_suite import BaseTestSuite
 
 LOGGER = logging.getLogger(__name__)
 
-JSON_SCHEMA_DIR_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    'schema')
-
 DEFAULT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
 
 
@@ -39,14 +34,14 @@ DEFAULT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
 class LSDTestSuite(BaseTestSuite):
     """LSD test suite"""
 
-    def __init__(self, config_manager, license_path):
+    def __init__(self, config, license_path):
         """
         Args:
-            config_manager (ConfigManager): ConfigManager object
+            config (TestConfig): Configuration object
             license_path (str): Path to an lcpl file
         """
 
-        self.config_manager = config_manager
+        self.config = config
         self.license_path = license_path
 
         # LCP License
@@ -58,6 +53,21 @@ class LSDTestSuite(BaseTestSuite):
         # test device id and name
         self.device_id = 0
         self.device_name = ""
+
+    def initialize(self):
+        """Initialize tests"""
+
+        if not os.path.exists(self.license_path):
+            raise TestSuiteRunningError(
+                "License file {} not found".format(self.license_path))
+        
+        with open(self.license_path) as json_file:    
+            self.lcpl = json.load(json_file)
+
+        #todo: make them random
+        self.device_id = 12345
+        self.device_name = "EDRLab testing tools"
+
 
     def _extract_lsd_url(self, lcpl):
         """
@@ -91,12 +101,11 @@ class LSDTestSuite(BaseTestSuite):
         it should have been updated after a successfull action.
         field values are 'status' or 'license'.
         """
-        LOGGER.info("The %s was last updated on: %s", field, self.lsd['updated']['status'])   
+        LOGGER.info("The {} was last updated on: {}".format(field, date_time) )  
         status_datetime = dateutil.parser.parse(date_time)
-        td = datetime.timedelta(minutes=10)
+        td = datetime.timedelta(minutes=1)
         if status_datetime + td < datetime.datetime.now(datetime.timezone.utc):
-            LOGGER.warning("Seems that the timestamp was not updated!") 
-            raise TestSuiteRunningError("The timestamp was not updated after the action!")
+            LOGGER.warning("It seems that the timestamp was not updated!") 
 
 
     def test_fetch_lsd(self):
@@ -129,21 +138,16 @@ class LSDTestSuite(BaseTestSuite):
 
         LOGGER.debug("The License Status Document is available")  
         #LOGGER.debug(self.lsd)   
- 
-
 
     def test_validate_lsd(self):
         """
         Validate a License Status Document
         """
 
-        lsd_json_schema_path = os.path.join(
-            JSON_SCHEMA_DIR_PATH, 'lsd_schema.json')
-
-        with open(lsd_json_schema_path) as schema_file:
+        with open(self.config.status_schema_path) as schema_file:
             lsd_json_schema = json.loads(schema_file.read())
             try:
-                jsonschema.validate(self.lsd, lsd_json_schema)
+                jsonschema.validate(self.lsd, lsd_json_schema, format_checker=jsonschema.FormatChecker())
             except jsonschema.ValidationError as err:
                 raise TestSuiteRunningError(err)
 
@@ -151,8 +155,6 @@ class LSDTestSuite(BaseTestSuite):
 
         # these are required properties -> if absent, has been spotted by the schema validation
         LOGGER.info("The status of the license is: %s", self.lsd['status'])  
-        LOGGER.info("The status was last updated on: %s", self.lsd['updated']['status'])   
-        LOGGER.info("The license was last updated on: %s", self.lsd['updated']['license'])   
         LOGGER.info("The user message is: %s", self.lsd['message'])   
         
         if 'potential_rights' in self.lsd:
@@ -169,10 +171,66 @@ class LSDTestSuite(BaseTestSuite):
                 )   
         else:
             LOGGER.info("No events in the status document")  
+
+    def test_required_links(self):
+        """ Check the presence of the required links
+        check the presence of a rel="license"" link, required by the specification.
+        check the presence of a rel="register" link, required by EDRLab.
+        check the mime-type of the different links (including renew and return links).
+        such constraints appear un-checkable with a json schema.
+        """
+        res = 0
+        renew_link = False
+        return_link = False
+        for l in self.lsd['links']:
+            if l['rel'] == 'license':
+                res +=1
+                if l['type'] != None and l['type'] != "application/vnd.readium.lcp.license-1.0+json":
+                    LOGGER.info("license link has type {}".format(l['type'])) 
+                    raise TestSuiteRunningError(
+                        "A 'license' link must have an 'application/vnd.readium.lcp.license-1.0+json' type")              
+
+            if l['rel'] == 'register':
+                res +=1 
+                if l['type'] != None and l['type'] != "application/vnd.readium.license.status.v1.0+json":
+                    raise TestSuiteRunningError(
+                        "A 'register' link must have an 'application/vnd.readium.license.status.v1.0+json' type")            
+                if not 'templated' in l or l['templated'] != True:
+                    raise TestSuiteRunningError(
+                        "A 'register' link must be templated (id and name)")            
+
+            if l['rel'] == 'renew' :
+                renew_link = True
+                if l['type'] != None and l['type'] != "application/vnd.readium.license.status.v1.0+json":
+                    raise TestSuiteRunningError(
+                        "A 'renew' link must have an 'application/vnd.readium.license.status.v1.0+json' type")
+                if not 'templated' in l or l['templated'] != True:
+                    raise TestSuiteRunningError(
+                        "A 'renew' link must be templated (end, id and name)")            
+
+            if l['rel'] == 'return' :
+                return_link = True
+                if l['type'] != None and l['type'] != "application/vnd.readium.license.status.v1.0+json":
+                    raise TestSuiteRunningError(
+                        "A 'return' link must have an 'application/vnd.readium.license.status.v1.0+json' type")
+                if not 'templated' in l or l['templated'] != True:
+                    raise TestSuiteRunningError(
+                        "A 'return' link must be templated (id and name)")            
+        
+        if renew_link == False:
+            LOGGER.info("No renew link in the status document") 
+        if return_link == False: 
+            LOGGER.info("No return link in the status document")  
+
+        if res != 2:
+            raise TestSuiteRunningError(
+                "Missing required 'license' or 'register' link in the license file")
+           
+        pass
                 
 
     def test_fetch_license(self):
-        """ Fetch a license from the URL found in the status doc, then validates it """
+        """ Fetch a license from the URL found in the status doc """
 
         try:
             license = next((l for l in self.lsd['links'] if l['rel'] == 'license'))
@@ -202,11 +260,28 @@ class LSDTestSuite(BaseTestSuite):
             raise TestSuiteRunningError("Malformed JSON License Document")
         LOGGER.debug("The License is available")   
 
-        # validate the license
-        lcpl_json_schema_path = os.path.join(
-            JSON_SCHEMA_DIR_PATH, 'lcpl_schema.json')
+    def test_rights(self):
+        # check the rights expressed in the license
+        rights = self.lcpl['rights']
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if 'start' in rights:
+            LOGGER.info("start: {}".format(rights['start']))
+            if now <  dateutil.parser.parse(rights['start']):
+                LOGGER.info("The start date is not reached")
+        if 'end' in rights:
+            LOGGER.info("end  : {}".format(rights['end']))
+            if now > dateutil.parser.parse(rights['end']):
+                LOGGER.info("The license has expired")
+        if 'copy' in rights:
+            LOGGER.info("copy : {}".format(rights['copy']))
+        if 'print' in rights:
+            LOGGER.info("print: {}".format(rights['print']))
 
-        with open(lcpl_json_schema_path) as schema_file:
+
+    def test_validate_license(self):
+        """ Validate the newly fetched license """
+
+        with open(self.config.license_schema_path) as schema_file:
             lcpl_json_schema = json.loads(schema_file.read())
             try:
                 jsonschema.validate(self.lcpl, lcpl_json_schema, format_checker=jsonschema.FormatChecker())
@@ -215,50 +290,52 @@ class LSDTestSuite(BaseTestSuite):
 
         LOGGER.debug("The up to date License is available and valid")
 
-        # display some license values
-        LOGGER.info("date issued {}, updated {}".format(
-            self.lcpl['issued'], self.lcpl['updated'] if "updated" in self.lcpl else "never"))
-        LOGGER.info("rights print {}, copy {}".format(
-            self.lcpl['rights']['print'], self.lcpl['rights']['copy']))
-        LOGGER.info("rights start {}, end {}".format(
-            self.lcpl['rights']['start'] if "start" in self.lcpl['rights'] else "none", 
-            self.lcpl['rights']['end'] if "end" in self.lcpl['rights'] else "none"))
-        
-    def test_register(self):
-        """ Register a device for the current license.
-            Check there is no error in case of multiple registering
-            Check the error is registering is not possible.
+
+    def _register_device(self, noname):
+        """
+        Register a device for the current license
+
+        Args:
+            noname: boolean, True if we try to register with no id nor name
+
+        Return:
+            boolean, success or error
         """
         try:
             license = next((l for l in self.lsd['links'] if l['rel'] == 'register'))
         except StopIteration as err:
             LOGGER.warning("'register' link missing in the status document")
-            return
+            return False
 
         # removes the 'blank' part in the templated URL
         register_url = re.sub("{.*?}",'',license['href'])
 
         LOGGER.debug("Register at url %s", register_url)
 
-        # id and name are required in the LSD spec
-        q = {"id": self.device_id, "name": self.device_name}
-        r = requests.post(register_url, params=q)
+        # if we want to check that a register with no id and name fails
+        if noname:
+            r = requests.post(register_url)
+        else:
+            # id and name are required in the LSD spec
+            q = {"id": self.device_id, "name": self.device_name}
+            # register the device for the current license
+            r = requests.post(register_url, params=q)
 
         # check the return code vs the license status
         if r.status_code != requests.codes.ok:
             LOGGER.warning("Error registering: {}".format(r.text))
-            if r.status_code == 400:
+            # error 400 is in the lsd spec, 403 should be added
+            if r.status_code in [400, 403]:
                 if self.lsd['status'] in ["expired", "returned","cancelled","revoked"]:
-                    LOGGER.info("The device could not be registered because the license is now unusable (%s)", 
-                        self.lsd['status'])
-                return
+                    LOGGER.info("The device could not be registered because the license was {}".format(self.lsd['status']))
+                elif self.lsd['status'] == "active" and noname==False:
+                    LOGGER.info("The device was certainly already registered before")                 
+                return False
             # other cases are weird    
             raise TestSuiteRunningError(
                 "Impossible to register the device at {}: error {}".format(
                     register_url, r.status_code)
                 )
-        LOGGER.debug("The device was successfully registered")   
-
         # if the register operation succeeds, 
         # the server MUST return an updated License Status Document
         try:
@@ -266,20 +343,54 @@ class LSDTestSuite(BaseTestSuite):
         except ValueError as err:
             LOGGER.debug(r.text)
             raise TestSuiteRunningError("Malformed JSON License Status Document")
+        return True
 
-        # check that the status date has been updated
-        self._check_datetime_updated('status', self.lsd['updated']['status'])
+    def test_register(self):
+        """ Register a device for the current license.
+            Check there is no error in case of multiple registering
+            Check the error is registering is not possible.
+        """
+        if self._register_device(noname=False):
+            LOGGER.debug("The device was successfully registered")   
 
+            # check the the new lsd structure is valid
+            self.test_validate_lsd()
 
-    def test_renew(self):
-        """ Renew a license if renewable.
-            Check the error if the license is not (or not anymmore) renewable.
+            # check that the status date has been updated
+            LOGGER.info("The current datetime is {}".format(datetime.datetime.utcnow().strftime(DEFAULT_DATETIME_FORMAT)))   
+            self._check_datetime_updated('status', self.lsd['updated']['status'])
+        else:
+            raise TestSuiteRunningError("The device wasn't successfully registered")
+
+    def test_register_noname(self):
+        """ Register a device for the current license wih no id nor name.
+            The server should return an error
+        """
+        if self._register_device(noname=True):
+            raise TestSuiteRunningError("The server must not accept registering with no id and name")
+
+    def test_register_twice(self):
+        """ Register for the second time a device for the current license.
+            The server should not return an error
+        """
+        if self._register_device(noname=False):
+            LOGGER.info("The server accepts double registrations")
+
+    def _renew_license(self, renew_days):
+        """
+        Renew the current license
+
+        Args:
+            renting_days: number of additional days
+
+        Return:
+            boolean, success or error
         """
         try:
             license = next((l for l in self.lsd['links'] if l['rel'] == 'renew'))
         except StopIteration as err:
             LOGGER.warning("No 'renew' link in the status document. ok if buy")
-            return
+            return False
 
         # removes the 'blank' part in the templated URL
         renew_url = re.sub("{.*?}",'',license['href'])
@@ -291,17 +402,16 @@ class LSDTestSuite(BaseTestSuite):
             if dateutil.parser.parse(self.lcpl['rights']['end']) == \
                 dateutil.parser.parse(self.lsd['potential_rights']['end']):
                 LOGGER.info("Max end date reached, impossible to renew")   
-                return    
+                return False    
         else:
             LOGGER.info("No max end date indicated")   
-
-        # choice of a number of days for the renewal
-        renew_days = 10
 
         # let's renew for N days after the current end date
         license_end = dateutil.parser.parse(self.lcpl['rights']['end']) + datetime.timedelta(days=renew_days)
 
         end = license_end.strftime(DEFAULT_DATETIME_FORMAT)
+       
+        LOGGER.info("Renew until {}".format(end))   
 
         # id and name are not required by the LSD spec, but let's add them
         q = {"id": self.device_id, "name": self.device_name, "end": end}
@@ -311,40 +421,50 @@ class LSDTestSuite(BaseTestSuite):
         license_status = self.lsd['status']
         if r.status_code != requests.codes.ok:
             LOGGER.warning("Error structure: {}".format(r.text))
-            if r.status_code == 403:
-                LOGGER.info("Incorrect renewal period; requested end is %s, potential end is %s", 
-                    end, self.lsd['potential_rights']['end'])    
-                return
-            elif r.status_code >= 400 and license_status not in ["active"]:
-                LOGGER.info("The publication can't be renewed properly, as the license is in state %s", 
-                     license_status)    
-                return
+            if r.status_code in [400, 403] and license_status != "active":                
+                LOGGER.info("The publication can't be renewed properly, as the license is {}".format(license_status))  
+                return False
            
             # other cases are weird    
             raise TestSuiteRunningError(
                 "Impossible to renew the publication at {}: error {}; license status is {}".format(
                     renew_url, r.status_code, license_status)
                 )
-        LOGGER.debug("The publication was successfully renewed")   
 
         # if the renew operation succeeds, 
-        # the server MUST return an updated License Status Document
+        # the server MUST return an updated License Status Document         
         try:
-            self.lsd = r.json()            
+            self.lsd = r.json()         
         except ValueError as err:
             LOGGER.debug(r.text)
             raise TestSuiteRunningError("Malformed JSON License Status Document")
+        return True
 
-        # check that the status date has been updated
-        self._check_datetime_updated('status', self.lsd['updated']['status'])
-        # check that the license date has been updated
-        self._check_datetime_updated('license', self.lsd['updated']['license'])
-        # check the new status
-        if (self.lsd['status'] != 'active') :
-              raise TestSuiteRunningError(
-                "The new status {} does not fit: must be active".format(self.lsd['status'])
-                )
-         
+
+    def test_renew(self):
+        """ Renew a license if renewable.
+            Check the error if the license is not (or not anymmore) renewable.
+        """
+        LOGGER.info("now is {}".format(datetime.datetime.utcnow().strftime(DEFAULT_DATETIME_FORMAT)))   
+        LOGGER.info("The current status updated datetime is {}".format(self.lsd['updated']['status']))
+
+        if self._renew_license(renew_days=2):
+            LOGGER.debug("The publication was successfully renewed for 2 days")   
+
+            # check the the new lsd structure is valid
+            self.test_validate_lsd()
+
+            # check that the status timestamp has been updated
+            self._check_datetime_updated('status', self.lsd['updated']['status'])
+            # check that the license timestamp has been updated
+            self._check_datetime_updated('license', self.lsd['updated']['license'])
+            # check the new status
+            if (self.lsd['status'] != 'active') :
+                raise TestSuiteRunningError(
+                    "The new status {} does not fit: must be active".format(self.lsd['status'])
+                    )
+            # sleep -> let the server update the license
+            #time.sleep(2)
         return
     
     def test_return(self):
@@ -370,13 +490,8 @@ class LSDTestSuite(BaseTestSuite):
         license_status = self.lsd['status']
         if r.status_code != requests.codes.ok:
             LOGGER.warning("Error structure: {}".format(r.text))
-            if r.status_code == 403 and license_status in ["expired","returned","cancelled"]:
-                LOGGER.info("The publication can't be returned, as the license is in state %s", 
-                    license_status)    
-                return
-            elif r.status_code == 400 and license_status in ["ready", "revoked"]:
-                LOGGER.info("The publication can't be returned properly, as the license is in state %s", 
-                     license_status)    
+            if r.status_code in [400, 403] and license_status != "active":    
+                LOGGER.info("The publication can't be returned properly, as the license is {}".format(license_status))  
                 return
            
             # other cases are weird    
@@ -394,33 +509,25 @@ class LSDTestSuite(BaseTestSuite):
             LOGGER.debug(r.text)
             raise TestSuiteRunningError("Malformed JSON License Status Document")
 
-        # check that the status date has been updated
+        # check the the new lsd structure is valid
+        self.test_validate_lsd()
+
+        # check that the status timestamp has been updated
+        LOGGER.info("The current datetime is {}".format(datetime.datetime.utcnow().strftime(DEFAULT_DATETIME_FORMAT)))   
         self._check_datetime_updated('status', self.lsd['updated']['status'])
+        # check that the license timestamp has been updated
+        # (the end date has been updated in the license)
+        self._check_datetime_updated('license', self.lsd['updated']['license'])
 
         # check the new status
         if (license_status == 'active' and self.lsd['status'] != 'returned') or \
            (license_status == 'ready' and self.lsd['status'] != 'cancelled'):
               raise TestSuiteRunningError(
-                "The new status %s does not fit with the previous one {}".format(
+                "The new status {} does not fit with the previous one {}".format(
                     license_status, self.lsd['status'])
                 )
          
         return
-
-    def initialize(self):
-        """Initialize tests"""
-
-        if not os.path.exists(self.license_path):
-            raise TestSuiteRunningError(
-                "License file {} not found".format(self.license_path))
-        
-        with open(self.license_path) as json_file:    
-            self.lcpl = json.load(json_file)
-
-        #todo: make them random
-        self.device_id = 12345
-        self.device_name = "EDRLab testing tools"
-
 
     def get_tests(self):
         """
@@ -430,8 +537,17 @@ class LSDTestSuite(BaseTestSuite):
         return [
             "fetch_lsd",
             "validate_lsd",
+            "required_links",
             "fetch_license",
-            #"register",
-            #"renew",
-            #"return"
+            "rights",
+            "validate_license",
+            "register_noname",
+            "register",
+            "register_twice",
+            "renew",
+            "fetch_license",
+            "rights",
+            "return",
+            "fetch_license",
+            "rights"
             ]
