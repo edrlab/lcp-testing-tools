@@ -65,7 +65,7 @@
 			"$ref": "#/definitions/dateString"
 		},
 		"provider": {
-			"$ref": "#/definitions/uriString"
+			"type": "string"
 		},
 		"updated": {
 			"$ref": "#/definitions/dateString"
@@ -97,7 +97,7 @@
 							"type": "string"
 						},
 						"algorithm": {
-							"enum": ["http://www.w3.org/2001/04/xmlenc#sha256","http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"]
+							"enum": ["http://www.w3.org/2001/04/xmlenc#sha256"]
 						},
 						"key_check": {
 							"$ref": "#/definitions/base64String"
@@ -161,10 +161,10 @@
     "signature": {
     	"type": "object",
       "properties": {
-        "algorithm": {
-        	"$ref": "#/definitions/uriString"
-        },
-      	"certificate": {
+				"algorithm": {
+					"enum": ["http://www.w3.org/2001/04/xmldsig-more#rsa-sha256","http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"]
+				},
+			"certificate": {
         	"$ref": "#/definitions/base64String"
         },
         "value": {
