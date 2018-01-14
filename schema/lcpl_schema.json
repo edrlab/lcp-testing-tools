@@ -65,7 +65,7 @@
 			"$ref": "#/definitions/dateString"
 		},
 		"provider": {
-			"type": "string"
+			"$ref": "#/definitions/uriString"
 		},
 		"updated": {
 			"$ref": "#/definitions/dateString"
