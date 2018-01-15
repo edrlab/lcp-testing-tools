@@ -161,10 +161,10 @@
     "signature": {
     	"type": "object",
       "properties": {
-        "algorithm": {
-        	"enum": ["http://www.w3.org/2001/04/xmldsig-more#rsa-sha256","http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"]
-        },
-      	"certificate": {
+				"algorithm": {
+					"enum": ["http://www.w3.org/2001/04/xmldsig-more#rsa-sha256","http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"]
+				},
+			"certificate": {
         	"$ref": "#/definitions/base64String"
         },
         "value": {

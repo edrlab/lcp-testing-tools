@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
 
 """
-LCP Protected file Test suite
-
-Copyright EDRLab, 2017
-
 Check an LCP Protected publication, retrieve a license from the file.
 
+Copyright 2017 European Digital Reading Lab. All rights reserved.
+Licensed to the Readium Foundation under one or more contributor license agreements.
+Use of this source code is governed by a BSD-style license
+that can be found in the LICENSE file exposed on Github (readium) in the project repository.
 """
 
-import json
 import logging
 import os.path
-import urllib.parse
-
 import zipfile
-import jsonschema
 import util
 
 from lxml import etree
@@ -23,25 +19,33 @@ from exception import TestSuiteRunningError
 from base_test_suite import BaseTestSuite
 
 LOGGER = logging.getLogger(__name__)
-JSON_SCHEMA_DIR_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    'schema')
 
 class LCPFTestSuite(BaseTestSuite):
-    """LCP Proteted file test suite"""
+    """LCP Protected file test suite"""
 
-    def __init__(self, config_manager, file_path):
+    def __init__(self, config, file_path):
         """
         Args:
-            config_manager (ConfigManager): ConfigManager object
+            config (TestConfig): Configuration object
             file_path (str): Path to a protected publication (epub+lcpl)
         """
 
-        self.config_manager = config_manager
+        self.config = config
         self.file_path = file_path
 
         # To be used by subsequent tests
+        # the target folder name will get '-', not '.'
+        self.target_path = os.path.join(self.config.working_path, 
+                                os.path.basename(self.file_path).replace('.','-'))
+
         self.license_path = None
+
+    def initialize(self):
+        """Initialize tests"""
+
+        if not os.path.exists(self.file_path):
+            raise TestSuiteRunningError(
+                "The protected publication does not exist {0}".format(self.file_path))
 
 
     def test_validate_encryption_xml(self):
@@ -50,11 +54,10 @@ class LCPFTestSuite(BaseTestSuite):
         Validate the xml file.
         """
 
-        target_path = os.path.join(self.config_manager.working_path, os.path.basename(self.file_path).replace('.','-'))
         try:
             with zipfile.ZipFile(self.file_path) as zip:
                 # it will store the xml file in the working dir, in a subfolder named after the protected publication
-                encryption_file = zip.extract('META-INF/encryption.xml', target_path)
+                encryption_file = zip.extract('META-INF/encryption.xml', self.target_path)
         except KeyError as err:
             raise TestSuiteRunningError(err)
 
@@ -66,10 +69,10 @@ class LCPFTestSuite(BaseTestSuite):
         - The URI attribute of ds:RetrievalMethod MUST use a value of “license.lcpl#/encryption/content_key” to point to the encrypted Content Key stored in the License Document. 
         - The Type attribute MUST use a value of “http://readium.org/2014/01/lcp#EncryptedContentKey” to identify the target of the URI as an encrypted Content Key.
         """
-        schema = etree.parse('schema/encryption.xsd')
+        schema = etree.parse(self.config.encryption_schema)
         xsd = etree.XMLSchema(schema)
 
-        doc = etree.parse(os.path.join(target_path, 'META-INF/encryption.xml'))
+        doc = etree.parse(os.path.join(self.target_path, 'META-INF/encryption.xml'))
         if not xsd.validate(doc):
             for error in xsd.error_log:
                 print (error.message, error.line, error.column)
@@ -81,8 +84,7 @@ class LCPFTestSuite(BaseTestSuite):
         are found in the EPUB archive.
         """
                
-        target_path = os.path.join(self.config_manager.working_path, os.path.basename(self.file_path).replace('.','-'))
-        doc = etree.parse(os.path.join(target_path, 'META-INF/encryption.xml'))
+        doc = etree.parse(os.path.join(self.target_path, 'META-INF/encryption.xml'))
         # list all encrypted resources in encryption.xml
         enc_res = doc.xpath("/c:encryption/e:EncryptedData/e:CipherData/e:CipherReference/@URI", 
             namespaces={'c':'urn:oasis:names:tc:opendocument:xmlns:container',
@@ -124,18 +126,9 @@ class LCPFTestSuite(BaseTestSuite):
 
         try:
             with zipfile.ZipFile(self.file_path) as zip:
-                # it will store the lcpl file in the working dir, in a subfolder named after the protected publication
-                target_path = os.path.join(self.config_manager.working_path, os.path.basename(self.file_path).replace('.','-'))
-                self.license_path = zip.extract('META-INF/license.lcpl', target_path)
+                self.license_path = zip.extract('META-INF/license.lcpl', self.target_path)
         except KeyError as err:
             raise TestSuiteRunningError(err)
-
-    def initialize(self):
-        """Initialize tests"""
-
-        if not os.path.exists(self.file_path):
-            raise TestSuiteRunningError(
-                "The protected publication does not exist {0}".format(self.file_path))
 
     def get_tests(self):
         """

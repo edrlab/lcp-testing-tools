@@ -65,15 +65,13 @@
 			"properties": {
 				"type": {
 					"type": "string",
-					"enum": ["license","register","renew","return"]
+					"enum": ["register","renew","return","cancel","expire","revoke"]
 				},
 				"name": {
-					"type": "string",
-					"minLength": 1
+					"type": ["string","null"]
 				},
 				"id": {
-					"type": "string",
-					"minLength": 1
+					"type": ["string","null"]
 				},
 				"timestamp": {
 					"$ref": "#/definitions/dateString"
