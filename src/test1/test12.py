@@ -16,7 +16,10 @@ class Test12(TestCase):
     self.license = License(self.config.license(), self.config.schema())
 
   def test_a_check_license_schema(self):
-      self.assertTrue(self.license.check_schema())
+      try:
+        self.license.check_schema()
+      except:
+        self.fail("Schema validation failure")
 
   def test_b_check_certificate_validity(self):
     cacert = self.config.cacert()
