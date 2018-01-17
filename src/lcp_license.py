@@ -32,7 +32,7 @@ class LCPLicense:
     # unmarshall from a JSON string
     if not os.path.exists(license_path):
       raise LCPLicenseError(
-          "License file {0} not found".format(self.license_path))
+        "License file {0} not found".format(self.license_path))
 
     with open(license_path, 'r', encoding='utf8') as json_file:    
       self.l = json.load(json_file)
@@ -47,28 +47,28 @@ class LCPLicense:
     with open(schema_path, 'r', encoding='utf8') as schema_file:
       lcpl_json_schema = json.load(schema_file)
       try:
-          jsonschema.validate(self.l, lcpl_json_schema, format_checker=jsonschema.FormatChecker())
+        jsonschema.validate(self.l, lcpl_json_schema, format_checker=jsonschema.FormatChecker())
       except jsonschema.ValidationError as err:
-          raise LCPLicenseError(err)
+        raise LCPLicenseError(err)
 
 
   def hint_link(self):
     # returns a link to the hint page
     for lk in self.l['links']:
-        if lk['rel'] == 'hint':
-          return lk['href']
+      if lk['rel'] == 'hint':
+        return lk['href']
             
   def publication_link(self):
     # returns a link to the publication resource
     for lk in self.l['links']:
-        if lk['rel'] == 'publication':
-          return lk['href']
+      if lk['rel'] == 'publication':
+        return lk['href']
             
   def status_link(self):
     # returns a link to the status document
     for lk in self.l['links']:
-        if lk['rel'] == 'status':
-          return lk['href']
+      if lk['rel'] == 'status':
+        return lk['href']
 
 
   def check_required_links(self):

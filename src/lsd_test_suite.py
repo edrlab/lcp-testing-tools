@@ -258,7 +258,7 @@ class LSDTestSuite(BaseTestSuite):
         except ValueError as err:
             LOGGER.debug(r.text)
             raise TestSuiteRunningError("Malformed JSON License Document")
-        LOGGER.debug("The License is available")   
+        LOGGER.debug("The License is available")  
 
     def test_rights(self):
         # check the rights expressed in the license
@@ -327,9 +327,9 @@ class LSDTestSuite(BaseTestSuite):
             # error 400 is in the lsd spec, 403 should be added
             if r.status_code in [400, 403]:
                 if self.lsd['status'] in ["expired", "returned","cancelled","revoked"]:
-                    LOGGER.info("The device could not be registered because the license was {}".format(self.lsd['status']))
+                    LOGGER.info("Note: the license was {}".format(self.lsd['status']))
                 elif self.lsd['status'] == "active" and noname==False:
-                    LOGGER.info("The device was certainly already registered before")                 
+                    LOGGER.info("Note: the device was certainly already registered before")                 
                 return False
             # other cases are weird    
             raise TestSuiteRunningError(
