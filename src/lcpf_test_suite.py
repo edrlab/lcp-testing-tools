@@ -69,7 +69,11 @@ class LCPFTestSuite(BaseTestSuite):
         - The URI attribute of ds:RetrievalMethod MUST use a value of “license.lcpl#/encryption/content_key” to point to the encrypted Content Key stored in the License Document. 
         - The Type attribute MUST use a value of “http://readium.org/2014/01/lcp#EncryptedContentKey” to identify the target of the URI as an encrypted Content Key.
         """
-        schema = etree.parse(self.config.encryption_schema)
+        try:
+            schema = etree.parse(self.config.encryption_schema)
+        except OSError as err:
+            raise TestSuiteRunningError(err)
+            
         xsd = etree.XMLSchema(schema)
 
         doc = etree.parse(os.path.join(self.target_path, 'META-INF/encryption.xml'))
