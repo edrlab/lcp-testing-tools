@@ -1,21 +1,17 @@
 from  unittest import TestCase
 from config.testconfig import TestConfig 
 from lcp.license import License
+from lcp.epub import ePub
 
-class Test11(TestCase):
+class Test22(TestCase):
 
   def setUp(self):
     # get config
-    self.config = TestConfig('test1.1')
-    self.license = License(self.config.license())
-     
-  def test_a_check_license_schema(self):
-      try:
-        self.license.check_schema()
-      except:
-        self.fail("Schema validation failure")
-      
+    self.config = TestConfig('test2')
+    epub = ePub(self.config.epub())
+    self.license = License(epub.read(epub.LCP_LICENSE), raw = True)
 
+  # tests from test1
   def test_b_check_certificate_validity(self):
     self.assertTrue(self.license.check_certificate())
 
@@ -33,4 +29,16 @@ class Test11(TestCase):
 
   def test_g_check_key_check(self):
     self.assertTrue(self.license.check_user_key(self.config.passphrase()))
+
+  def test_h_check_start(self):
+    if self.license.is_loan():
+      self.assertIsNotNone(self.license.get_start())
+
+  def test_i_check_end(self):
+    if self.license.is_loan():
+      self.assertIsNotNone(self.license.get_end())
+
+  def test_j_check_start_before_end(self):
+    if self.license.is_loan():
+      self.assertTrue(self.license.get_start() < self.license.get_end())
 

@@ -1,6 +1,6 @@
 from  unittest import TestCase
 from config.testconfig import TestConfig 
-from lcp.lcp import License
+from lcp.license import License
 
 from jsonschema import validate as jsonvalidate
 from dateutil.parser import parse as dateparse
@@ -11,9 +11,7 @@ class Test12(TestCase):
   def setUp(self):
     # get config
     self.config = TestConfig('test1.2')
-    # get crypto from external crypto tool
-    self.crypto = self.config.crypto_package()
-    self.license = License(self.config.license(), self.config.schema())
+    self.license = License(self.config.license())
 
   def test_a_check_license_schema(self):
       try:
@@ -22,8 +20,7 @@ class Test12(TestCase):
         self.fail("Schema validation failure")
 
   def test_b_check_certificate_validity(self):
-    cacert = self.config.cacert()
-    self.assertTrue(self.license.check_certificate(self.config.cacert()))
+    self.assertTrue(self.license.check_certificate())
 
   def test_c_check_license_signature(self):
     self.assertTrue(self.license.check_signature())
@@ -48,3 +45,4 @@ class Test12(TestCase):
 
   def test_j_check_start_before_end(self):
     self.assertTrue(self.license.get_start() < self.license.get_end())
+

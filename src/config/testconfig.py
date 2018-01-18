@@ -21,8 +21,11 @@ class TestConfig:
       self.common = yaml_config['common']
 
   # Common config for all tests
-  def schema(self):
+  def license_schema(self):
     return self.common['license']['schema']
+
+  def encryption_schema(self):
+    return self.common['encryption']['schema']
 
   def cacert(self):
     return str(self.common['crypto']['cacert'])

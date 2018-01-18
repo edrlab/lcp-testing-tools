@@ -6,14 +6,22 @@ import time
 from config.testconfig import TestConfig
 
 class License():
-  def __init__(self, licensename, schemaname):
-    with open(licensename, 'r') as license, open(schemaname, 'r') as schema:
-      self.license = json.load(license)
+  def __init__(self, licensename, raw=False):
+    self.config = TestConfig()
+    if raw == False:
+      with open(licensename, 'r') as license:
+        self.license = json.load(license)
+        license.seek(0)
+        self.rawlicense = str(license.read())
+    else:
+      self.license = json.loads(licensename)
+      self.rawlicense = str(licensename)
+
+    with open(self.config.license_schema(), 'r') as schema:
       self.schema = json.load(schema)
-      license.seek(0)
-      self.rawlicense = str(license.read())
-      self.config = TestConfig()
-      self.crypto = self.config.crypto_package()
+      
+    self.crypto = self.config.crypto_package()
+
  
   # All the useful getters
   def get_id(self):
@@ -58,6 +66,9 @@ class License():
     unix_time = time.mktime(dateparse(end).timetuple())  
     return int(unix_time)
 
+  def is_loan(self):
+    return not self.license['rights'].get('end', None) is None
+
   # get content key
   def get_content_key(self):
     return self.crypto.base64_decode(str(self.license['encryption']['content_key']['encrypted_value']))
@@ -79,9 +90,10 @@ class License():
     return self.crypto.check_userkey(passphrase, user_key_hash_algo,
                 key_check, license_id, content_key_encryption_algo)
 
-  def check_certificate(self, cacert):
+  def check_certificate(self):
     certificate = self.get_certificate()
     issued = self.get_issued()
+    cacert = self.config.cacert()
     return self.crypto.verify_certificate(certificate, cacert, issued)
 
   def check_signature(self):
