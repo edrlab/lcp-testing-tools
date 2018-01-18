@@ -27,6 +27,9 @@ class TestConfig:
   def encryption_schema(self):
     return self.common['encryption']['schema']
 
+  def status_schema(self):
+    return self.common['status']['schema']
+
   def cacert(self):
     return str(self.common['crypto']['cacert'])
 

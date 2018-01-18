@@ -3,7 +3,11 @@ common:
     # Path to license schema
     schema: '/home/me/lcp-testing-tools/schema/lcpl_schema.json'
   encryption:
+    # Encryption XML XSD
     schema: '/home/me/lcp-testing-tools/schema/encryption.xsd' 
+  status:
+    # statuc document schema
+    schema: '/home/me/lcp-testing-tools/schema/lsd_schema.json'
   crypto:
     # Path to LCP specific crypto package
     package: '/home/me/lcp-testing-tools-crypto/build/lcptests'
@@ -21,3 +25,6 @@ test1.2:
 test2:
   epub: '/home/me/epub/e1'
   passphrase: 'test_passphrase'
+
+test3.1:
+  license: '/home/me/licenses/b1.lcpl'

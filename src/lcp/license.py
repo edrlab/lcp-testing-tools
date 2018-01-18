@@ -6,6 +6,9 @@ import time
 from config.testconfig import TestConfig
 
 class License():
+
+  MIMETYPE='application/vnd.readium.lcp.license-1.0+json'
+
   def __init__(self, licensename, raw=False):
     self.config = TestConfig()
     if raw == False:

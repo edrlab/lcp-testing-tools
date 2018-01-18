@@ -25,12 +25,12 @@ class Test21(TestCase):
   def test_d_check_unencrypted_resources(self): 
     encrypted = self.encxml.get_all_uri()
     for unencrypted in self.epub.UNENCRYPTED_FILES:
-      self.assertFalse(unencrypted in encrypted)
+      self.assertNotIn(unencrypted, encrypted)
 
   def test_e_check_media_uncompressed(self): 
     for comp in self.encxml.get_compressed_uri():
       name, ext = splitext(comp)
-      self.assertFalse(ext in self.epub.MEDIA_EXTENSIONS)
+      self.assertNotIn(ext, self.epub.MEDIA_EXTENSIONS)
 
   def test_f_check_license_is_available(self):
     self.assertTrue(self.epub.contains(self.epub.LCP_LICENSE))

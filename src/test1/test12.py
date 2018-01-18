@@ -1,41 +1,15 @@
-from  unittest import TestCase
 from config.testconfig import TestConfig 
 from lcp.license import License
+from test1 import Test1
 
-from jsonschema import validate as jsonvalidate
-from dateutil.parser import parse as dateparse
-import time
-
-class Test12(TestCase):
+class Test12(Test1):
 
   def setUp(self):
     # get config
     self.config = TestConfig('test1.2')
     self.license = License(self.config.license())
 
-  def test_a_check_license_schema(self):
-      try:
-        self.license.check_schema()
-      except:
-        self.fail("Schema validation failure")
-
-  def test_b_check_certificate_validity(self):
-    self.assertTrue(self.license.check_certificate())
-
-  def test_c_check_license_signature(self):
-    self.assertTrue(self.license.check_signature())
-
-  def test_d_check_publication_mimetype(self):
-    self.assertEquals(self.config.publication_mimetype(), self.license.get_link('publication', 'type'))
-  
-  def test_e_check_status_mimetype(self):
-    self.assertEquals(self.config.status_mimetype(), self.license.get_link('status', 'type'))
-   
-  def test_f_check_content_key_format(self):
-    self.assertEquals(len(self.license.get_content_key()), 64)
-
-  def test_g_check_key_check(self):
-    self.assertTrue(self.license.check_user_key(self.config.passphrase()))
+  # test from a -> g are in test1
 
   def test_h_check_start(self):
     self.assertIsNotNone(self.license.get_start())
