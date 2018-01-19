@@ -16,21 +16,25 @@ class Test1(TestCase):
 
   def test_c_check_license_signature(self):
     """- Check the signature value"""
-    self.assertTrue(self.license.check_signature())
+    self.assertTrue(self.license.check_signature(), "The license signature is incorrect")
 
   def test_d_check_publication_mimetype(self):
     """- Check that the mime-type of a publication link is 'application/epub+zip' """
-    self.assertEquals(self.config.publication_mimetype(), self.license.get_link('publication', 'type'))
+    self.assertEquals(self.config.publication_mimetype(),
+      self.license.get_link('publication', 'type'),
+      "The publication mimetype is incorrect")
   
   def test_e_check_status_mimetype(self):
     """- Check that the mime-type of a status link is 'application/vnd.readium.license.status.v1.0+json' """
-    self.assertEquals(self.config.status_mimetype(), self.license.get_link('status', 'type'))
+    self.assertEquals(self.config.status_mimetype(),
+      self.license.get_link('status', 'type'),
+      "The status mimetype is incorrect")
    
   def test_f_check_content_key_format(self):
     """- Check the content key format (64 bytes after base64 decoding)"""
-    self.assertEquals(len(self.license.get_content_key()), 64)
+    self.assertEquals(len(self.license.get_content_key()), 64, "The content key size is incorrect")
 
   def test_g_check_key_check(self):
     """Check the key_check value"""
-    self.assertTrue(self.license.check_user_key(self.config.passphrase()))
+    self.assertTrue(self.license.check_user_key(self.config.passphrase()), "The key check value or user passphrase is incorrect")
 

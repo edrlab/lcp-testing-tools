@@ -7,7 +7,7 @@ import urllib
 class Test3(TestCase):
 
   def test_a_check_status_link_https(self):
-    """- Check that the “status” link is a valid https url"""
+    """- Check that the 'status' link is a valid https url"""
     link = self.license.get_link('status', 'href')
     self.assertTrue(link.startswith('https://'))
 
@@ -30,7 +30,7 @@ class Test3(TestCase):
     events = status.get_events()
 
   def test_d_check_status_license_link(self):
-    """- Check if the “license” link is a valid https url"""
+    """- Check if the 'license' link is a valid https url"""
     link = self.license.get_link('status', 'href')
     response = urllib.urlopen(link)
     status = Status(response.read())

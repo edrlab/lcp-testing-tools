@@ -1,6 +1,6 @@
 from config.testconfig import TestConfig 
 from lcp.license import License
-from test1 import Test1
+from .test1 import Test1
 
 class Test11(Test1):
 
