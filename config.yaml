@@ -28,3 +28,8 @@ test2:
 
 test3.1:
   license: '/home/me/licenses/b1.lcpl'
+  passphrase: 'test_passphrase'
+
+test3.2:
+  license: '/home/me/licenses/l1.lcpl'
+  passphrase: 'test_passphrase'
