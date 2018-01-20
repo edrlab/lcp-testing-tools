@@ -6,6 +6,20 @@ import time
 from config.testconfig import TestConfig
 
 class Status():
+
+  READY = 'ready'
+  ACTIVE = 'active'
+  REVOKED = 'revoked'
+  RETURNED = 'returned'
+  CANCELLED = 'cancelled'
+  EXPIRED = 'expired'
+
+  REGISTER = 'register'
+  CANCEL = 'cancel'
+  REVOKE = 'revoke'
+  RENEW = 'renew'
+  RETURN = 'return'
+
   def __init__(self, status):
     self.config = TestConfig()
     self.status = json.loads(status)
@@ -25,4 +39,5 @@ class Status():
         return link[param] if param in link else link
     return None
 
-
+  def is_ready(self):
+    return self.status['status'] == READY

@@ -12,11 +12,48 @@ from test3.test31 import Test31
 from test3.test32 import Test32
 from test3.test311 import Test311
 from test3.test321 import Test321
+from test4.test41 import Test41
+
 
 def log(logfile, msg):
   now = datetime.now().strftime('%Y-%m-%d %H:%M:%S - ')
   sys.stdout.write(now+msg+'\n')
   logfile.write('\n'+now+msg+'\n')
+
+
+class LCPTestResult(unittest.TestResult):
+  def __init__(self, log):
+    try: # Python 3
+      super().__init__()
+    except:
+      super(LCPTestResult, self).__init__()
+    self.log = log
+
+  def startTestRun(self):
+    # before all tests
+    pass
+
+  def stopTestRun(self):
+    # After all tests
+    pass
+
+  def startTest(self, test):
+    # Before each test
+    pass
+
+  def stopTest(self, test):
+    # After each test
+    pass
+
+  def addError(self, test, err):
+    pass
+
+  def addFailure(test, err):
+    pass
+
+  def addSuccess(self, test):
+    pass
+
 
 
 if __name__ == '__main__':
@@ -34,6 +71,13 @@ if __name__ == '__main__':
   test32 = unittest.TestLoader().loadTestsFromTestCase(Test32)
   test311 = unittest.TestLoader().loadTestsFromTestCase(Test311)
   test321 = unittest.TestLoader().loadTestsFromTestCase(Test321)
+  test41 = unittest.TestLoader().loadTestsFromTestCase(Test41)
+
+  r = LCPTestResult()
+  for t in test11:
+    t.run(result = r)
+
+
 
   with open(args.file, 'w') as logfile:
     log(logfile, "Executing Test1.1 fron config {} and log activity to {}".format(args.config, args.file))
@@ -50,3 +94,5 @@ if __name__ == '__main__':
     log(logfile, "Executing Test3.2 from config {} and log activity to {}".format(args.config, args.file))
     unittest.TextTestRunner(logfile, verbosity=2).run(test32)
     unittest.TextTestRunner(logfile, verbosity=2).run(test321)
+    log(logfile, "Executing Test4.1 from config {} and log activity to {}".format(args.config, args.file))
+    unittest.TextTestRunner(logfile, verbosity=2).run(test41)
