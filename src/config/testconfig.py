@@ -21,6 +21,9 @@ class TestConfig:
       self.common = yaml_config['common']
 
   # Common config for all tests
+  def provider(self):
+    return self.common['provider']
+
   def license_schema(self):
     return self.common['license']['schema']
 

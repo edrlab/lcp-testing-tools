@@ -3,7 +3,9 @@ import sys
 import os
 import argparse
 import inspect
+import traceback
 from datetime import datetime
+from config.testconfig import TestConfig
 
 TESTSUITES=[
   {'module': 'tests.test1.part1', 'title': 'Test1.1 LCP buy license basic tests' },
@@ -11,7 +13,8 @@ TESTSUITES=[
   {'module': 'tests.test2.part1', 'title': 'Test2.1 LCP encrypted ePub tests' },
   {'module': 'tests.test2.part2', 'title': 'Test2.1 LCP encrypted ePub license tests' },
   {'module': 'tests.test3.part1', 'title': 'Test3.1 Status document buy license basic tests' },
-  {'module': 'tests.test3.part2', 'title': 'Test3.2 Status document loan license basic tests' }
+  {'module': 'tests.test3.part2', 'title': 'Test3.2 Status document loan license basic tests' },
+  {'module': 'tests.test4.part1', 'title': 'Test4.1 Check first register' }
 ]
 
 def get_tests(module):
@@ -34,7 +37,7 @@ class LCPTestResult(unittest.TestResult):
 
   def start(self):
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S - ')
-    self.log.write('------------------------------------------------------------------\n')
+    self.log.write('\n------------------------------------------------------------------\n')
     self.log.write(now+self.title+'\n')
     self.log.write('------------------------------------------------------------------\n')
 
@@ -58,25 +61,37 @@ class LCPTestResult(unittest.TestResult):
     self.log.write('OK')
 
   def end(self):
-    if len(self.errors) > 0:
-      print self.errors
-    if len(self.failures) > 0:
-      print self.failures
+    self.log.write('======= Error summary =======\n')
+    for err in self.errors:
+      testname = err[0].shortDescription()
+      errmsg = err[1][1]
+      self.log.write('{}: {}\n'.format(testname, errmsg))
+      traceback.print_tb(err[1][2], file=self.log)
+    for err in self.failures:
+      testname = err[0].shortDescription()
+      errmsg = err[1][1]
+      self.log.write('{}: {}\n'.format(testname, errmsg))
+      traceback.print_tb(err[1][2], file=self.log)
     if len(self.failures) == 0 and len(self.errors) == 0:
       self.log.write('--> All tests are OK\n')
+    self.log.write('=============================\n')
 
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument("-c", "--config", required=True, help="path to the yaml configuration file", dest='config')
-  parser.add_argument("-f", "--file", required=True, help="Tests log file", dest='file')
   args = parser.parse_args()
 
+  # Set configuration file
   os.environ['LCP_TEST_CONFIG'] = args.config
+  # Get config from config file 
+  config = TestConfig()
+  now = datetime.now().strftime('%Y%m%d_%H%M%S')
+  filename = '{}-{}.log'.format(config.provider(), now)
 
   for testsuite in TESTSUITES:
-    with open(args.file, 'aw') as logfile:
+    with open(filename, 'aw') as logfile:
       tests = get_tests(testsuite['module'])
       r = LCPTestResult(logfile, testsuite['title'])
       r.start()

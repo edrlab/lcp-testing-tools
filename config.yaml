@@ -1,4 +1,5 @@
 common:
+  provided: 'EDRLab'
   license:
     # Path to license schema
     schema: '/home/me/lcp-testing-tools/schema/lcpl_schema.json'

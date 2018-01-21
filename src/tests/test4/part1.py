@@ -4,7 +4,7 @@ from lcp.license import License
 from lcp.status import Status
 import urllib
 
-class Test41(TestCase):
+class LCPTests(TestCase):
 
   def setUp(self):
     # get config
@@ -13,10 +13,10 @@ class Test41(TestCase):
     # Get status from config license
     link = license.get_link('status', 'href')
     response = urllib.urlopen(link)
-    status = Status(response.read())
+    self.status = Status(response.read())
 
 
   def test_a_check_status_ready(self):
     """- Check the current status is 'ready'"""
-    self.assertTrue(status.is_ready(), "The status is not 'ready'")
+    self.assertTrue(self.status.is_ready(), "The status is not 'ready'")
 

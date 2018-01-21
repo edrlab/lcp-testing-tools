@@ -40,4 +40,4 @@ class Status():
     return None
 
   def is_ready(self):
-    return self.status['status'] == READY
+    return self.status['status'] == self.READY
