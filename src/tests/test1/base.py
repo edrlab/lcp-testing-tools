@@ -35,6 +35,6 @@ class Test1(TestCase):
     self.assertEquals(len(self.license.get_content_key()), 64, "The content key size is incorrect")
 
   def test_g_check_key_check(self):
-    """Check the key_check value"""
+    """- Check the key_check value"""
     self.assertTrue(self.license.check_user_key(self.config.passphrase()), "The key check value or user passphrase is incorrect")
 

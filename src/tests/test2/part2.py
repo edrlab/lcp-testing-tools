@@ -2,10 +2,10 @@ from  unittest import TestCase
 from config.testconfig import TestConfig 
 from lcp.license import License
 from lcp.epub import ePub
-from test1.test1 import Test1
+from tests.test1.base import Test1
 
 
-class Test22(Test1):
+class LCPTests(Test1):
 
   def setUp(self):
     # get config

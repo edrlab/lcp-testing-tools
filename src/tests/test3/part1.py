@@ -1,11 +1,19 @@
-import urllib
 from config.testconfig import TestConfig 
 from lcp.license import License
 from lcp.status import Status
-from test1.test1 import Test1
+import urllib
+from .base import Test3
+from tests.test1.base import Test1
+
+class LCPTests1(Test3):
+
+  def setUp(self):
+    # get config
+    self.config = TestConfig('test3.1')
+    self.license = License(self.config.license())
 
 
-class Test311(Test1):
+class LCPTests2(Test1):
 
   def setUp(self):
     # get config
@@ -19,7 +27,4 @@ class Test311(Test1):
     link = status.get_link('license', 'href')
     response = urllib.urlopen(link)
     self.license = License(response.read(), raw = True)
-    
-
-  # All tests are defined in test1
-
+ 

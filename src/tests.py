@@ -2,57 +2,68 @@ import unittest
 import sys
 import os
 import argparse
+import inspect
 from datetime import datetime
 
-from test1.test11 import Test11
-from test1.test12 import Test12
-from test2.test21 import Test21
-from test2.test22 import Test22
-from test3.test31 import Test31
-from test3.test32 import Test32
-from test3.test311 import Test311
-from test3.test321 import Test321
-from test4.test41 import Test41
+TESTSUITES=[
+  {'module': 'tests.test1.part1', 'title': 'Test1.1 LCP buy license basic tests' },
+  {'module': 'tests.test1.part2', 'title': 'Test1.2 LCP loan license basic tests' },
+  {'module': 'tests.test2.part1', 'title': 'Test2.1 LCP encrypted ePub tests' },
+  {'module': 'tests.test2.part2', 'title': 'Test2.1 LCP encrypted ePub license tests' },
+  {'module': 'tests.test3.part1', 'title': 'Test3.1 Status document buy license basic tests' },
+  {'module': 'tests.test3.part2', 'title': 'Test3.2 Status document loan license basic tests' }
+]
 
+def get_tests(module):
+  tests = []
+  t = __import__(module, fromlist=['Tests'])
+  for name, obj in inspect.getmembers(t):
+    if inspect.isclass(obj) and name.startswith('LCPTests'):
+      tests.append(unittest.TestLoader().loadTestsFromTestCase(obj))
+  return tests 
 
-def log(logfile, msg):
-  now = datetime.now().strftime('%Y-%m-%d %H:%M:%S - ')
-  sys.stdout.write(now+msg+'\n')
-  logfile.write('\n'+now+msg+'\n')
-
-
+# Test result class to format test results
 class LCPTestResult(unittest.TestResult):
-  def __init__(self, log):
+  def __init__(self, log, title):
     try: # Python 3
       super().__init__()
     except:
       super(LCPTestResult, self).__init__()
     self.log = log
+    self.title = title
 
-  def startTestRun(self):
-    # before all tests
-    pass
-
-  def stopTestRun(self):
-    # After all tests
-    pass
+  def start(self):
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S - ')
+    self.log.write('------------------------------------------------------------------\n')
+    self.log.write(now+self.title+'\n')
+    self.log.write('------------------------------------------------------------------\n')
 
   def startTest(self, test):
-    # Before each test
+    self.log.write(test.shortDescription()+'... ')
     pass
 
   def stopTest(self, test):
-    # After each test
+    self.log.write('\n')
     pass
 
   def addError(self, test, err):
-    pass
+    self.errors.append((test, err))
+    self.log.write('ERROR')
 
-  def addFailure(test, err):
-    pass
+  def addFailure(self, test, err):
+    self.failures.append((test, err))
+    self.log.write('FAILURE')
 
   def addSuccess(self, test):
-    pass
+    self.log.write('OK')
+
+  def end(self):
+    if len(self.errors) > 0:
+      print self.errors
+    if len(self.failures) > 0:
+      print self.failures
+    if len(self.failures) == 0 and len(self.errors) == 0:
+      self.log.write('--> All tests are OK\n')
 
 
 
@@ -63,36 +74,12 @@ if __name__ == '__main__':
   args = parser.parse_args()
 
   os.environ['LCP_TEST_CONFIG'] = args.config
-  test11 = unittest.TestLoader().loadTestsFromTestCase(Test11)
-  test12 = unittest.TestLoader().loadTestsFromTestCase(Test12)
-  test21 = unittest.TestLoader().loadTestsFromTestCase(Test21)
-  test22 = unittest.TestLoader().loadTestsFromTestCase(Test22)
-  test31 = unittest.TestLoader().loadTestsFromTestCase(Test31)
-  test32 = unittest.TestLoader().loadTestsFromTestCase(Test32)
-  test311 = unittest.TestLoader().loadTestsFromTestCase(Test311)
-  test321 = unittest.TestLoader().loadTestsFromTestCase(Test321)
-  test41 = unittest.TestLoader().loadTestsFromTestCase(Test41)
 
-  r = LCPTestResult()
-  for t in test11:
-    t.run(result = r)
-
-
-
-  with open(args.file, 'w') as logfile:
-    log(logfile, "Executing Test1.1 fron config {} and log activity to {}".format(args.config, args.file))
-    unittest.TextTestRunner(logfile, descriptions=True, verbosity=2).run(test11)
-    log(logfile, "Executing Test1.2 from config {} and log activity to {}".format(args.config, args.file))
-    unittest.TextTestRunner(logfile, verbosity=2).run(test12)
-    log(logfile, "Executing Test2.1 from config {} and log activity to {}".format(args.config, args.file))
-    unittest.TextTestRunner(logfile, verbosity=2).run(test21)
-    log(logfile, "Executing Test2.2 from config {} and log activity to {}".format(args.config, args.file))
-    unittest.TextTestRunner(logfile, verbosity=2).run(test22)
-    log(logfile, "Executing Test3.1 from config {} and log activity to {}".format(args.config, args.file))
-    unittest.TextTestRunner(logfile, verbosity=2).run(test31)
-    unittest.TextTestRunner(logfile, verbosity=2).run(test311)
-    log(logfile, "Executing Test3.2 from config {} and log activity to {}".format(args.config, args.file))
-    unittest.TextTestRunner(logfile, verbosity=2).run(test32)
-    unittest.TextTestRunner(logfile, verbosity=2).run(test321)
-    log(logfile, "Executing Test4.1 from config {} and log activity to {}".format(args.config, args.file))
-    unittest.TextTestRunner(logfile, verbosity=2).run(test41)
+  for testsuite in TESTSUITES:
+    with open(args.file, 'aw') as logfile:
+      tests = get_tests(testsuite['module'])
+      r = LCPTestResult(logfile, testsuite['title'])
+      r.start()
+      for test in tests:
+        test.run(r)
+      r.end()

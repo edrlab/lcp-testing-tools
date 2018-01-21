@@ -1,10 +1,13 @@
 from config.testconfig import TestConfig 
 from lcp.license import License
-from .test3 import Test3
+from .base import Test1
 
-class Test32(Test3):
+class LCPTests(Test1):
 
   def setUp(self):
     # get config
-    self.config = TestConfig('test3.2')
+    self.config = TestConfig('test1.1')
     self.license = License(self.config.license())
+    
+  # All tests are defined in test1
+

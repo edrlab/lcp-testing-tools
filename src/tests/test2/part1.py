@@ -4,7 +4,7 @@ from lcp.license import License
 from lcp.epub import ePub
 from os.path import splitext
 
-class Test21(TestCase):
+class LCPTests(TestCase):
 
   def setUp(self):
     # get config

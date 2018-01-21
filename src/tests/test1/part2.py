@@ -1,8 +1,8 @@
 from config.testconfig import TestConfig 
 from lcp.license import License
-from .test1 import Test1
+from .base import Test1
 
-class Test12(Test1):
+class LCPTests(Test1):
 
   def setUp(self):
     # get config
