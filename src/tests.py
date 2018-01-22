@@ -37,28 +37,35 @@ class LCPTestResult(unittest.TestResult):
 
   def start(self):
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S - ')
+    msg = now+self.title+'\n'
     self.log.write('\n------------------------------------------------------------------\n')
-    self.log.write(now+self.title+'\n')
+    self.log.write(msg)
     self.log.write('------------------------------------------------------------------\n')
+    sys.stdout.write(msg)
 
   def startTest(self, test):
     self.log.write(test.shortDescription()+'... ')
+    sys.stdout.write(test.shortDescription()+'... ')
     pass
 
   def stopTest(self, test):
     self.log.write('\n')
+    sys.stdout.write('\n')
     pass
 
   def addError(self, test, err):
     self.errors.append((test, err))
     self.log.write('ERROR')
+    sys.stdout.write('ERROR')
 
   def addFailure(self, test, err):
     self.failures.append((test, err))
     self.log.write('FAILURE')
+    sys.stdout.write('FAILURE')
 
   def addSuccess(self, test):
     self.log.write('OK')
+    sys.stdout.write('OK')
 
   def end(self):
     self.log.write('======= Error summary =======\n')
