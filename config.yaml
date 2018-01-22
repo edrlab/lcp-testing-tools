@@ -35,6 +35,5 @@ test3.2:
   license: '/home/me/licenses/l1.lcpl'
   passphrase: 'test_passphrase'
  
-test4.1:
+test4:
   license: '/home/me/licenses/b1.lcpl'
-  passphrase: 'test_passphrase'

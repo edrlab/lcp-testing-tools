@@ -2,7 +2,7 @@ import json
 from jsonschema import validate as jsonvalidate
 from dateutil.parser import parse as dateparse
 import time
-import urllib
+import requests
 from uritemplate import expand
 
 from config.testconfig import TestConfig
@@ -33,11 +33,18 @@ class Status():
       self.schema = json.load(schema) 
 
   def _download(self, link):
-    response = urllib.urlopen(link)
-    if response.getcode() == 200:
-      return response.read()
+    r = requests.get(link)
+    if r.status_code == 200:
+      return r.text
     else:
-      raise IOError('Register return HTTP error {}'.format(response.getcode()))
+      raise IOError('Return GET HTTP error {}'.format(r.status_code))
+
+  def _post(self, link):
+    r = requests.post(link)
+    if r.status_code == 200:
+      return r.text
+    else:
+      raise IOError('Return POST HTTP error {}'.format(r.status_code))
 
   def update_status(self):
     self.status = json.loads(self._download(self.link))
@@ -58,6 +65,11 @@ class Status():
         return link[param] if param in link else link
     return None
 
+  def get_updated_status(self):
+    updated = self.status['updated']['status']
+    unix_time = time.mktime(dateparse(updated).timetuple())  
+    return int(unix_time)
+
   def is_ready(self):
     return self.status['status'] == self.READY
 
@@ -68,8 +80,8 @@ class Status():
     link = self.get_link(self.REGISTER)
     if link['templated']:
       regurl = expand(link['href'], {'id': deviceid, 'name':devicename})
-      self.status = json.loads(self._download(regurl))
+      self.status = json.loads(self._post(regurl))
     else:
-      self.status = json.loads(link['href'])
+      self.status = json.loads(self._post(link['href']))
 
 

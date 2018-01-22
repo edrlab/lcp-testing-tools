@@ -13,14 +13,12 @@ class LCPTests(TestCase):
     self.status = Status(license)
     self.status.update_status()
 
-  def test_a_check_status_ready(self):
+  def test_a_check_status_active(self):
     """- Check the current status is 'ready'"""
-    self.assertTrue(self.status.is_ready(), "The status is not 'ready'")
+    self.assertTrue(self.status.is_active(), "The status is not 'active'")
 
-  def test_b_register_and_check_status(self):
-    """- Register with non empty id and name string parameters"""
-    link = self.status.get_link(self.status.REGISTER) 
-    self.assertTrue(link['templated'], "The register link is not templated")
+  def test_b_register_again(self):
+    """- Register b1 again with the same id and name string parameters"""
     # Save updated.status to compare on test_e...
     self.original_time = self.status.get_updated_status()
     self.status.register(self.status.DEVICEID1, self.status.DEVICENAME1)
@@ -32,15 +30,11 @@ class LCPTests(TestCase):
     except:
       self.fail("Status schema validation failure")
 
-  def test_d_check_status_active(self):
-    """- Check that a new status is 'active'"""
-    self.assertIsTrue(self.status.is_active())
-
-  def test_e_updated_time(self):
-    """- Check the the 'updated.status' timestamp has been updated"""
+  def test_d_updated_time(self):
+    """- Check the the 'updated.status' timestamp has NOT been updated"""
     updated = self.status.get_updated_status()
-    self.assertLess(self.original_time, updated)
+    self.assertEquals(self.original_time, updated)
     
   def test_f_register_event(self):
-    """- Test if a new register event appears in the status document"""
+    """- Test that NO new register event appears in the status document"""
     pass
