@@ -12,6 +12,7 @@ class LCPTests(TestCase):
     # Get status from config license
     self.status = Status(license)
     self.status.update_status()
+    self.original_time = self.status.get_updated_status()
 
   def test_a_check_status_active(self):
     """- Check the current status is 'ready'"""
@@ -20,7 +21,6 @@ class LCPTests(TestCase):
   def test_b_register_again(self):
     """- Register b1 again with the same id and name string parameters"""
     # Save updated.status to compare on test_e...
-    self.original_time = self.status.get_updated_status()
     self.status.register(self.status.DEVICEID1, self.status.DEVICENAME1)
 
   def test_c_check_status_schema(self):

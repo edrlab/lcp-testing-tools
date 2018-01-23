@@ -32,26 +32,26 @@ class Status():
     with open(self.config.status_schema(), 'r') as schema:
       self.schema = json.load(schema) 
 
-  def _download(self, link):
+  def _get(self, link):
     r = requests.get(link)
     if r.status_code == 200:
       return r.text
     else:
-      raise IOError('Return GET HTTP error {}'.format(r.status_code))
+      raise IOError('Return GET {} HTTP error {}'.format(link, r.status_code))
 
   def _post(self, link):
     r = requests.post(link)
     if r.status_code == 200:
       return r.text
     else:
-      raise IOError('Return POST HTTP error {}'.format(r.status_code))
+      raise IOError('Return POST {} HTTP error {}'.format(link, r.status_code))
 
   def update_status(self):
-    self.status = json.loads(self._download(self.link))
+    self.status = json.loads(self._get(self.link))
 
   def update_license(self):
     licenselink = self.get_link('license', 'href')
-    return License(self._download(licenselink), raw=True)
+    return License(self._get(licenselink), raw=True)
 
   def check_schema(self):
     return jsonvalidate(self.status, self.schema)

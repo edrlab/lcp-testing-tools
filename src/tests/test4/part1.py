@@ -12,6 +12,7 @@ class LCPTests(TestCase):
     # Get status from config license
     self.status = Status(license)
     self.status.update_status()
+    self.original_time = self.status.get_updated_status()
 
   def test_a_check_status_ready(self):
     """- Check the current status is 'ready'"""
@@ -22,7 +23,6 @@ class LCPTests(TestCase):
     link = self.status.get_link(self.status.REGISTER) 
     self.assertTrue(link['templated'], "The register link is not templated")
     # Save updated.status to compare on test_e...
-    self.original_time = self.status.get_updated_status()
     self.status.register(self.status.DEVICEID1, self.status.DEVICENAME1)
 
   def test_c_check_status_schema(self):
@@ -34,7 +34,7 @@ class LCPTests(TestCase):
 
   def test_d_check_status_active(self):
     """- Check that a new status is 'active'"""
-    self.assertIsTrue(self.status.is_active())
+    self.assertTrue(self.status.is_active())
 
   def test_e_updated_time(self):
     """- Check the the 'updated.status' timestamp has been updated"""
