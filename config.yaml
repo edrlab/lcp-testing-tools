@@ -37,3 +37,9 @@ test3.2:
  
 test4:
   license: '/home/me/licenses/b1.lcpl'
+
+test5.1:
+  license: '/home/me/licenses/b2.lcpl'
+
+test5.2:
+  license: '/home/me/licenses/b3.lcpl'

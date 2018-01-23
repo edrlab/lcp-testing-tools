@@ -15,6 +15,5 @@ class LCPTests(TestCase):
 
   def test_a_register_without_id_and_name(self):
     """- Register b1 without id and name string parameters and check that the server returns an error"""
-    # Save updated.status to compare on test_e...
-    with self.assertRaises(IOError):
+    with self.assertRaisesRegexp(IOError, 'POST .* HTTP error 400$'):
       self.status.register('', '')

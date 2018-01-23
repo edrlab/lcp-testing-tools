@@ -15,7 +15,7 @@ class LCPTests(TestCase):
     self.original_time = self.status.get_updated_status()
 
   def test_a_check_status_active(self):
-    """- Check the current status is 'ready'"""
+    """- Check the current status is 'active'"""
     self.assertTrue(self.status.is_active(), "The status is not 'active'")
 
   def test_b_register_again(self):

@@ -37,14 +37,14 @@ class Status():
     if r.status_code == 200:
       return r.text
     else:
-      raise IOError('Return GET {} HTTP error {}'.format(link, r.status_code))
+      raise IOError('GET {} HTTP error {}'.format(link, r.status_code))
 
   def _post(self, link):
     r = requests.post(link)
     if r.status_code == 200:
       return r.text
     else:
-      raise IOError('Return POST {} HTTP error {}'.format(link, r.status_code))
+      raise IOError('POST {} HTTP error {}'.format(link, r.status_code))
 
   def update_status(self):
     self.status = json.loads(self._get(self.link))
@@ -75,6 +75,12 @@ class Status():
 
   def is_active(self):
     return self.status['status'] == self.ACTIVE
+
+  def is_cancelled(self):
+    return self.status['status'] == self.CANCELLED
+
+  def is_revoked(self):
+    return self.status['status'] == self.REVOKED
 
   def register(self, deviceid, devicename):
     link = self.get_link(self.REGISTER)

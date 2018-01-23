@@ -16,7 +16,9 @@ TESTSUITES=[
   {'module': 'tests.test3.part2', 'title': 'Test3.2 Status document loan license basic tests' },
   {'module': 'tests.test4.part1', 'title': 'Test4.1 Check first register' },
   {'module': 'tests.test4.part2', 'title': 'Test4.2 Check several registers' },
-  {'module': 'tests.test4.part3', 'title': 'Test4.3 Check register error' }
+  {'module': 'tests.test4.part3', 'title': 'Test4.3 Check register error' },
+  {'module': 'tests.test5.part1', 'title': 'Test5.1 Check a cancelled license' },
+  {'module': 'tests.test5.part2', 'title': 'Test5.2 Check a revoked license' },
 ]
 
 def get_tests(module):
