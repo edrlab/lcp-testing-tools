@@ -1,32 +1,32 @@
 common:
-  provided: 'EDRLab'
+  provider: 'EDRLab'
   license:
     # Path to license schema
-    schema: '/home/me/lcp-testing-tools/schema/lcpl_schema.json'
+    schema: './schema/lcpl_schema.json'
   encryption:
     # Encryption XML XSD
-    schema: '/home/me/lcp-testing-tools/schema/encryption.xsd' 
+    schema: './schema/encryption.xsd' 
   status:
     # statuc document schema
-    schema: '/home/me/lcp-testing-tools/schema/lsd_schema.json'
+    schema: './schema/lsd_schema.json'
   crypto:
     # Path to LCP specific crypto package
-    package: '/home/me/lcp-testing-tools-crypto/build/lcptests'
-    cacert: '/home/me/certs/cacert.pem'
+    package: '/home/rbauzac/Readium/lcp-testing-tools-crypto/build/lcptests'
+    cacert: './cert/cacert-edrlab-test.pem'
 
 data:
   b1: 
     license: './data/b1.lcpl'
-    passphrase: 'my_passphrase'
+    passphrase: '8751a4b184adc4a47d72677a3a0bb9f22f0c4339d10d3037'
   l1:
     license: './data/l1.lcpl'
-    passphrase: 'my_passphrase'
+    passphrase: '037d45c6f5c13a870f29157e1ab0448119515b5a92f14f66'
   e1:
     epub: './data/e1.epub'
-    passphrase: 'my_passphrase'
+    passphrase: '4fd6d0bc2cace14f2d4a804af0d50dc3861109f1e63b3080'
   b2:
     license: './data/b2.lcpl'
-    passphrase: 'my_passphrase'
+    passphrase: '04945920a53ab301d391ee6cbd9ac0b75dec3f5768e90bab'
   b3:
     license: './data/b3.lcpl'
-    passphrase: 'my_passphrase'
+    passphrase: '3a8d72e7b7947cdb6f7fbdd432a575ee50d3d7272dfb1400'

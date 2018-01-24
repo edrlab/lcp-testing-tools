@@ -20,6 +20,12 @@ TESTSUITES=[
   {'id': 'test5.1', 'module': 'tests.test5.part1', 'title': 'Test5.1 Check a cancelled license' },
   {'id': 'test5.2', 'module': 'tests.test5.part2', 'title': 'Test5.2 Check a revoked license' },
   {'id': 'test6.1', 'module': 'tests.test6.part1', 'title': 'Test6.1 Check renew on a non active license'},
+  {'id': 'test6.2', 'module': 'tests.test6.part2', 'title': 'Test6.2 Check renew before license end date'},
+  {'id': 'test6.3', 'module': 'tests.test6.part3', 'title': 'Test6.3 Check basic renew'},
+  {'id': 'test6.4', 'module': 'tests.test6.part4', 'title': 'Test6.4 Check renew with no id and name'},
+  {'id': 'test6.5', 'module': 'tests.test6.part5', 'title': 'Test6.5 Check renew without end date'},
+  {'id': 'test6.6', 'module': 'tests.test6.part6', 'title': 'Test6.6 Check renew with erroneous timestamp'},
+  {'id': 'test6.7', 'module': 'tests.test6.part7', 'title': 'Test6.7 Check renew potential_right'},
 ]
 
 def get_tests(module):
@@ -93,10 +99,13 @@ class LCPTestResult(unittest.TestResult):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument("-c", "--config", required=True, help="path to the yaml configuration file", dest='config')
+  parser.add_argument("-f", "--filter", default="all", help="filter", dest='filter')
   args = parser.parse_args()
 
   # Set configuration file
   os.environ['LCP_TEST_CONFIG'] = args.config
+
+  filt = args.filter.split(',')
 
   # Get config from config file 
   config = TestConfig()
@@ -105,7 +114,8 @@ if __name__ == '__main__':
 
   with open(filename, 'w') as logfile:
     for testsuite in TESTSUITES:
-      
+      if not testsuite['id'] in filt and not args.filter == 'all':
+        continue
       tests = get_tests(testsuite['module'])
       r = LCPTestResult(logfile, testsuite['title'])
       r.start()

@@ -18,7 +18,7 @@ class Test3(TestCase):
     try:
       status.check_schema()
     except:
-      self.fail("Status schema validation failure")
+      self.fail("Status schema validation failure {}".format(status.status))
 
   def test_c_status_events(self):
     """- Check if events are (or not) available"""

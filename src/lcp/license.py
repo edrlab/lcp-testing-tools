@@ -58,21 +58,21 @@ class License():
     return str(self.license['encryption']['user_key']['algorithm'])
 
   def get_start(self):
-    start = self.license['rights'].get('start')
+    start = self.license['rights'].get('start', None) if 'rights' in self.license else None
     if not start:
       return None
     unix_time = calendar.timegm(dateparse(start).timetuple())  
     return int(unix_time)
 
   def get_end(self):
-    end = self.license['rights'].get('end')
+    end = self.license['rights'].get('end', None) if 'rights' in self.license else None
     if not end:
       return None
     unix_time = calendar.timegm(dateparse(end).timetuple())  
     return int(unix_time)
 
   def is_loan(self):
-    return not self.license['rights'].get('end', None) is None
+    return not self.get_end() is None 
 
   # get content key
   def get_content_key(self):

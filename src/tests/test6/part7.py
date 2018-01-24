@@ -16,9 +16,7 @@ class LCPTests(TestCase):
     self.status.update_status()
     self.end = license.get_end()
 
-  def test_a_renew_non_active_license(self):
-    """- Request a loan extension for 2 days only and check that the server responds an error (HTTP/4xx)"""
-    self.assertTrue(self.status.is_ready(), "The license is active, non active state awaited")
-    with self.assertRaisesRegexp(IOError, 'PUT .* HTTP error 4[0-9][0-9]$'):
-      self.status.renew(self.status.DEVICEID1, self.status.DEVICENAME1, self.end+2*self.ADAY)
- 
+  def test_a_renew_license_before_end_date(self):
+    """- If a potential rights end is present, request loan renew until the potential rights end is reached"""
+    self.assertTrue(self.status.is_active(), "The license is not active, active state awaited")
+#    self.status.renew('', '', self.end+2*self.ADAY)

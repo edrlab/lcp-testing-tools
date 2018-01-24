@@ -19,7 +19,6 @@ class Status():
   EXPIRED = 'expired'
 
   REGISTER = 'register'
-  CANCEL = 'cancel'
   REVOKE = 'revoke'
   RENEW = 'renew'
   RETURN = 'return'
@@ -101,7 +100,24 @@ class Status():
 
   def renew(self, deviceid, devicename, end):
     link = self.get_link(self.RENEW)
-    if link['type'] == License.LICENSE_MIMETYPE and link['templated'] == True:
-      regurl = expand(link['href'], {'id': deviceid, 'name':devicename, 'end':datetime.utcfromtimestamp(end).isoformat()})
+    try:
+      pend = datetime.utcfromtimestamp(end).isoformat()+'Z'
+    except:
+      pend = end
+
+    if link['type'] == License.STATUS_MIMETYPE and link['templated'] == True:
+      regurl = expand(link['href'], {'id': deviceid, 'name':devicename, 'end':pend})
       self.status = json.loads(self._put(regurl))
-      
+
+  def renewnoend(self, deviceid, devicename):
+    link = self.get_link(self.RENEW)
+    if link['type'] == License.STATUS_MIMETYPE and link['templated'] == True:
+      regurl = expand(link['href'], {'id': deviceid, 'name':devicename})
+      self.status = json.loads(self._put(regurl))
+
+  def renewnodevice(self, end):
+    link = self.get_link(self.RENEW)
+    pend = datetime.utcfromtimestamp(end).isoformat()+'Z'
+    if link['type'] == License.STATUS_MIMETYPE and link['templated'] == True:
+      regurl = expand(link['href'], {'end':pend})
+      self.status = json.loads(self._put(regurl))
