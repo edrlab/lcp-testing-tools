@@ -1,4 +1,4 @@
-from config.testconfig import TestConfig 
+from config.config import TestConfig 
 from lcp.license import License
 from lcp.status import Status 
 from .base import Test3
@@ -9,7 +9,7 @@ class LCPTests1(Test3):
 
   def setUp(self):
     # get config
-    self.config = TestConfig('test3.2')
+    self.config = TestConfig('l1')
     self.license = License(self.config.license())
 
 
@@ -17,7 +17,7 @@ class LCPTests2(Test1):
 
   def setUp(self):
     # get config
-    self.config = TestConfig('test3.2')
+    self.config = TestConfig('l1')
     license = License(self.config.license())
     # Get status from config license
     status = Status(license)

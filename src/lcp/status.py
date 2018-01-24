@@ -1,7 +1,8 @@
 import json
 from jsonschema import validate as jsonvalidate
 from dateutil.parser import parse as dateparse
-import time
+import calendar
+from datetime import datetime
 import requests
 from uritemplate import expand
 
@@ -46,6 +47,14 @@ class Status():
     else:
       raise IOError('POST {} HTTP error {}'.format(link, r.status_code))
 
+  def _put(self, link):
+    r = requests.put(link)
+    if r.status_code == 200:
+      return r.text
+    else:
+      raise IOError('PUT {} HTTP error {}'.format(link, r.status_code))
+
+
   def update_status(self):
     self.status = json.loads(self._get(self.link))
 
@@ -67,7 +76,7 @@ class Status():
 
   def get_updated_status(self):
     updated = self.status['updated']['status']
-    unix_time = time.mktime(dateparse(updated).timetuple())  
+    unix_time = calendar.timegm(dateparse(updated).timetuple())  
     return int(unix_time)
 
   def is_ready(self):
@@ -90,4 +99,9 @@ class Status():
     else:
       self.status = json.loads(self._post(link['href']))
 
-
+  def renew(self, deviceid, devicename, end):
+    link = self.get_link(self.RENEW)
+    if link['type'] == License.LICENSE_MIMETYPE and link['templated'] == True:
+      regurl = expand(link['href'], {'id': deviceid, 'name':devicename, 'end':datetime.utcfromtimestamp(end).isoformat()})
+      self.status = json.loads(self._put(regurl))
+      

@@ -1,12 +1,12 @@
 from  unittest import TestCase
-from config.testconfig import TestConfig 
+from config.config import TestConfig 
 from lcp.license import License
 from lcp.status import Status
 
 class LCPTests(TestCase):
 
   def setUp(self):
-    self.config = TestConfig('test5.2')
+    self.config = TestConfig('b3')
     self.license = License(self.config.license())
 
   def test_a_check_status_cancelled(self):  

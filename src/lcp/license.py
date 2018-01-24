@@ -1,13 +1,15 @@
 import json
 from jsonschema import validate as jsonvalidate
 from dateutil.parser import parse as dateparse
-import time
+import calendar
 
-from config.testconfig import TestConfig
+from config.config import TestConfig
 
 class License():
 
-  MIMETYPE='application/vnd.readium.lcp.license-1.0+json'
+  LICENSE_MIMETYPE='application/vnd.readium.lcp.license-1.0+json'
+  PUBLICATION_MIMETYPE="application/epub+zip"
+  STATUS_MIMETYPE="application/vnd.readium.license.status.v1.0+json"
 
   def __init__(self, licensename, raw=False):
     self.config = TestConfig()
@@ -44,12 +46,12 @@ class License():
 
   def get_issued(self):
     issued = self.license['issued']
-    unix_time = time.mktime(dateparse(issued).timetuple())  
+    unix_time = calendar.timegm(dateparse(issued).timetuple())  
     return int(unix_time)
 
   def get_updated(self):
     updated = self.license['updated']
-    unix_time = time.mktime(dateparse(updated).timetuple())  
+    unix_time = calendar.timegm(dateparse(updated).timetuple())  
     return int(unix_time)
 
   def get_user_key_hash_algo(self):
@@ -59,14 +61,14 @@ class License():
     start = self.license['rights'].get('start')
     if not start:
       return None
-    unix_time = time.mktime(dateparse(start).timetuple())  
+    unix_time = calendar.timegm(dateparse(start).timetuple())  
     return int(unix_time)
 
   def get_end(self):
     end = self.license['rights'].get('end')
     if not end:
       return None
-    unix_time = time.mktime(dateparse(end).timetuple())  
+    unix_time = calendar.timegm(dateparse(end).timetuple())  
     return int(unix_time)
 
   def is_loan(self):

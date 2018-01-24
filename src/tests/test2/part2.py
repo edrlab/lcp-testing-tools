@@ -1,5 +1,5 @@
 from  unittest import TestCase
-from config.testconfig import TestConfig 
+from config.config import TestConfig 
 from lcp.license import License
 from lcp.epub import ePub
 from tests.test1.base import Test1
@@ -9,7 +9,7 @@ class LCPTests(Test1):
 
   def setUp(self):
     # get config
-    self.config = TestConfig('test2')
+    self.config = TestConfig('e1')
     epub = ePub(self.config.epub())
     self.license = License(epub.read(epub.LCP_LICENSE), raw = True)
 

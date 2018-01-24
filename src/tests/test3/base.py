@@ -1,5 +1,5 @@
 from  unittest import TestCase
-from config.testconfig import TestConfig 
+from config.config import TestConfig 
 from lcp.license import License
 from lcp.status import Status
 
@@ -39,4 +39,4 @@ class Test3(TestCase):
     status = Status(self.license)
     status.update_status()
     mimetype = status.get_link('license', 'type')
-    self.assertEquals(mimetype, License.MIMETYPE)
+    self.assertEquals(mimetype, License.LICENSE_MIMETYPE)

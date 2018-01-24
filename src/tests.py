@@ -5,20 +5,21 @@ import argparse
 import inspect
 import traceback
 from datetime import datetime
-from config.testconfig import TestConfig
+from config.config import TestConfig
 
 TESTSUITES=[
-  {'module': 'tests.test1.part1', 'title': 'Test1.1 LCP buy license basic tests' },
-  {'module': 'tests.test1.part2', 'title': 'Test1.2 LCP loan license basic tests' },
-  {'module': 'tests.test2.part1', 'title': 'Test2.1 LCP encrypted ePub tests' },
-  {'module': 'tests.test2.part2', 'title': 'Test2.1 LCP encrypted ePub license tests' },
-  {'module': 'tests.test3.part1', 'title': 'Test3.1 Status document buy license basic tests' },
-  {'module': 'tests.test3.part2', 'title': 'Test3.2 Status document loan license basic tests' },
-  {'module': 'tests.test4.part1', 'title': 'Test4.1 Check first register' },
-  {'module': 'tests.test4.part2', 'title': 'Test4.2 Check several registers' },
-  {'module': 'tests.test4.part3', 'title': 'Test4.3 Check register error' },
-  {'module': 'tests.test5.part1', 'title': 'Test5.1 Check a cancelled license' },
-  {'module': 'tests.test5.part2', 'title': 'Test5.2 Check a revoked license' },
+  {'id': 'test1.1', 'module': 'tests.test1.part1', 'title': 'Test1.1 LCP buy license basic tests' },
+  {'id': 'test1.2', 'module': 'tests.test1.part2', 'title': 'Test1.2 LCP loan license basic tests' },
+  {'id': 'test2.1', 'module': 'tests.test2.part1', 'title': 'Test2.1 LCP encrypted ePub tests' },
+  {'id': 'test2.2', 'module': 'tests.test2.part2', 'title': 'Test2.2 LCP encrypted ePub license tests' },
+  {'id': 'test3.1', 'module': 'tests.test3.part1', 'title': 'Test3.1 Status document buy license basic tests' },
+  {'id': 'test3.2', 'module': 'tests.test3.part2', 'title': 'Test3.2 Status document loan license basic tests' },
+  {'id': 'test4.1', 'module': 'tests.test4.part1', 'title': 'Test4.1 Check first register' },
+  {'id': 'test4.2', 'module': 'tests.test4.part2', 'title': 'Test4.2 Check several registers' },
+  {'id': 'test4.3', 'module': 'tests.test4.part3', 'title': 'Test4.3 Check register error' },
+  {'id': 'test5.1', 'module': 'tests.test5.part1', 'title': 'Test5.1 Check a cancelled license' },
+  {'id': 'test5.2', 'module': 'tests.test5.part2', 'title': 'Test5.2 Check a revoked license' },
+  {'id': 'test6.1', 'module': 'tests.test6.part1', 'title': 'Test6.1 Check renew on a non active license'},
 ]
 
 def get_tests(module):
@@ -96,13 +97,15 @@ if __name__ == '__main__':
 
   # Set configuration file
   os.environ['LCP_TEST_CONFIG'] = args.config
+
   # Get config from config file 
   config = TestConfig()
   now = datetime.now().strftime('%Y%m%d_%H%M%S')
   filename = '{}-{}.log'.format(config.provider(), now)
 
-  for testsuite in TESTSUITES:
-    with open(filename, 'aw') as logfile:
+  with open(filename, 'w') as logfile:
+    for testsuite in TESTSUITES:
+      
       tests = get_tests(testsuite['module'])
       r = LCPTestResult(logfile, testsuite['title'])
       r.start()

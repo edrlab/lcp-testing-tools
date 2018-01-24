@@ -1,5 +1,5 @@
 from  unittest import TestCase
-from config.testconfig import TestConfig 
+from config.config import TestConfig 
 from lcp.license import License
 from lcp.epub import ePub
 from os.path import splitext
@@ -8,7 +8,7 @@ class LCPTests(TestCase):
 
   def setUp(self):
     # get config
-    self.config = TestConfig('test2')
+    self.config = TestConfig('e1')
     self.epub = ePub(self.config.epub())
     self.encxml = self.epub.get_encryption_xml()
 

@@ -14,32 +14,19 @@ common:
     package: '/home/me/lcp-testing-tools-crypto/build/lcptests'
     cacert: '/home/me/certs/cacert.pem'
 
-
-test1.1:
-  license: '/home/me/licenses/b1.lcpl'
-  passphrase: 'test_passphrase'
-
-test1.2:
-  license: '/home/me/licenses/l1.lcpl'
-  passphrase: 'test_passphrase'
-
-test2:
-  epub: '/home/me/epub/e1'
-  passphrase: 'test_passphrase'
-
-test3.1:
-  license: '/home/me/licenses/b1.lcpl'
-  passphrase: 'test_passphrase'
-
-test3.2:
-  license: '/home/me/licenses/l1.lcpl'
-  passphrase: 'test_passphrase'
- 
-test4:
-  license: '/home/me/licenses/b1.lcpl'
-
-test5.1:
-  license: '/home/me/licenses/b2.lcpl'
-
-test5.2:
-  license: '/home/me/licenses/b3.lcpl'
+data:
+  b1: 
+    license: './data/b1.lcpl'
+    passphrase: 'my_passphrase'
+  l1:
+    license: './data/l1.lcpl'
+    passphrase: 'my_passphrase'
+  e1:
+    epub: './data/e1.epub'
+    passphrase: 'my_passphrase'
+  b2:
+    license: './data/b2.lcpl'
+    passphrase: 'my_passphrase'
+  b3:
+    license: './data/b3.lcpl'
+    passphrase: 'my_passphrase'

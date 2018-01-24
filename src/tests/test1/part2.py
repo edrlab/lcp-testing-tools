@@ -1,4 +1,4 @@
-from config.testconfig import TestConfig 
+from config.config import TestConfig 
 from lcp.license import License
 from .base import Test1
 
@@ -6,7 +6,7 @@ class LCPTests(Test1):
 
   def setUp(self):
     # get config
-    self.config = TestConfig('test1.2')
+    self.config = TestConfig('l1')
     self.license = License(self.config.license())
 
   # test from a -> g are in test1

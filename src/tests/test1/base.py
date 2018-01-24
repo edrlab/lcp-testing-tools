@@ -20,13 +20,13 @@ class Test1(TestCase):
 
   def test_d_check_publication_mimetype(self):
     """- Check that the mime-type of a publication link is 'application/epub+zip' """
-    self.assertEquals(self.config.publication_mimetype(),
+    self.assertEquals(self.license.PUBLICATION_MIMETYPE,
       self.license.get_link('publication', 'type'),
       "The publication mimetype is incorrect")
   
   def test_e_check_status_mimetype(self):
     """- Check that the mime-type of a status link is 'application/vnd.readium.license.status.v1.0+json' """
-    self.assertEquals(self.config.status_mimetype(),
+    self.assertEquals(self.license.STATUS_MIMETYPE,
       self.license.get_link('status', 'type'),
       "The status mimetype is incorrect")
    
