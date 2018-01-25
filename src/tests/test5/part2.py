@@ -22,7 +22,7 @@ class LCPTests(TestCase):
     if not events is None:
       found = False
       for event in self.status.get_events():
-        if event['type'] == self: 
+        if event['type'] == self.status.REVOKE:
           found = True
 
       self.assertTrue(found, "The cancel event is not available in the event list")

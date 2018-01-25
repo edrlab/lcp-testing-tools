@@ -31,7 +31,14 @@ class LCPTests(TestCase):
 
   def test_c_check_renew_event(self):
     """- If events are present, check if the status document contains a new 'renewed' event"""
-    pass
+    events = self.status.get_events()
+    if not events is None:
+      found = False
+      for event in self.status.get_events():
+        if event['type'] == self.status.RENEW:
+          found = True
+
+      self.assertTrue(found, "The cancel event is not available in the event list")
 
   def test_d_fetch_license_and_check_end_date(self):
     """- Fetch the license and check that the new end date is still the previous expiration date"""
