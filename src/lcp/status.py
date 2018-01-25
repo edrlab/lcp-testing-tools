@@ -93,6 +93,13 @@ class Status():
   def get_status(self):
     return self.status['status']
 
+  def get_potential_end(self):
+    if 'potential_right' in self.status and 'end' in self.status['potential_right']:
+      unix_time = calendar.timegm(dateparse(self.status['potential_right']['end']).timetuple())  
+      return int(unix_time)
+    else:
+      return None
+
   def register(self, deviceid, devicename):
     link = self.get_link(self.REGISTER)
     if link['templated']:
