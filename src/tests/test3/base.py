@@ -25,6 +25,8 @@ class Test3(TestCase):
     status = Status(self.license)
     status.update_status()
     events = status.get_events()
+    self.assertIsNotNone(events, "This is not an ERROR : no events are available in the status document") 
+
 
   def test_d_check_status_license_link(self):
     """- Check if the 'license' link is a valid https url"""

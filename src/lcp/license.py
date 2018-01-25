@@ -18,7 +18,11 @@ class License():
       with open(licensename, 'r') as license:
         self.license = json.load(license)
     else:
-      self.license = json.loads(licensename.decode('utf-8'))
+      if type(licensename) == 'byte':
+        self.license = json.loads(licensename.decode('utf-8'))
+      else:
+        self.license = json.loads(licensename)
+
     self.rawlicense = json.dumps(self.license)
 
     with open(self.config.license_schema(), 'r') as schema:
