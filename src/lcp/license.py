@@ -17,7 +17,7 @@ class License():
       with open(licensename, 'r') as license:
         self.license = json.load(license)
     else:
-      if type(licensename) == 'bytes':
+      if isinstance(licensename, bytes):
         self.license = json.loads(licensename.decode('utf-8'))
       else:
         self.license = json.loads(licensename)
