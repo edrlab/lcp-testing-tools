@@ -13,11 +13,11 @@ class License():
 
   def __init__(self, licensename, raw=False):
     self.config = TestConfig()
-    if raw == False:
+    if raw is False:
       with open(licensename, 'r') as license:
         self.license = json.load(license)
     else:
-      if type(licensename) == 'byte':
+      if type(licensename) == 'bytes':
         self.license = json.loads(licensename.decode('utf-8'))
       else:
         self.license = json.loads(licensename)

@@ -22,6 +22,7 @@ class Status():
   REVOKE = 'revoke'
   RENEW = 'renew'
   RETURN = 'return'
+  CANCEL = 'cancel'
 
   DEVICEID1 = '6f2bd94-3dcf-4034-a663-5f2a7945ee52'
   DEVICENAME1 = 'My reading device 1'
@@ -122,9 +123,9 @@ class Status():
       return
     if link['templated']:
       regurl = expand(link['href'], {'id': deviceid, 'name':devicename})
-      self.status = json.loads(self._post(regurl))
+      self.status = json.loads(self._put(regurl))
     else:
-      self.status = json.loads(self._post(link['href']))
+      self.status = json.loads(self._put(link['href']))
 
   def renew(self, deviceid, devicename, end):
     link = self.get_link(self.RENEW)

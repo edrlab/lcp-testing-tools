@@ -17,19 +17,19 @@ common:
 data:
   b1: 
     license: './data/b1.lcpl'
-    passphrase: 'b127b2f49135789d7aea5ff3946e328c2de0eb58f72bebe6'
+    passphrase: '2d30e2126f63b5e1f4b2c5cf042510656eba93ef97515e11'
   l1:
     license: './data/l1.lcpl'
-    passphrase: 'ddeec0900a8acdd66fd54e6af68b21bb959ddb16b04ccf0e'
+    passphrase: 'e6cbceb6126d62a4058abb538eb17451e095559f97318eca'
   e1:
     epub: './data/e1.epub'
-    passphrase: '0fe170e31a10291ef2fd3c673fe3eb2863eda83bd051a318'
+    passphrase: '750d93c6be98b5549c4c0603029d8ccc7f476944e7db4739'
   b2:
     license: './data/b2.lcpl'
-    passphrase: '09659376263329f2bb3b121d56139655c87fe46a5febfcd5'
+    passphrase: '00b68ad18e8ee2fd801dcc9d3b0f6d736fa88143f199e0bf'
   b3:
     license: './data/b3.lcpl'
-    passphrase: 'a13b599bccddd083876c1a9e88d8193fdd1f25a7d3c73c53'
+    passphrase: '885664aadb76124507b94ee519e33a4a3be97fe6b1a6119a'
   l2:
     license: './data/l2.lcpl'
-    passphrase: 'ddeec0900a8acdd66fd54e6af68b21bb959ddb16b04ccf0e'
+    passphrase: 'e6cbceb6126d62a4058abb538eb17451e095559f97318eca'
