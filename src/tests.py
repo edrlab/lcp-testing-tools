@@ -90,6 +90,7 @@ class LCPTestResult(unittest.TestResult):
       errmsg = err[1][1]
       self.log.write('{}: {}\n'.format(testname, errmsg))
       traceback.print_tb(err[1][2], file=self.log)
+      self.log.write('\n')
     if len(self.failures) == 0 and len(self.errors) == 0:
       self.log.write('--> All tests are OK\n')
     self.log.write('=============================\n')

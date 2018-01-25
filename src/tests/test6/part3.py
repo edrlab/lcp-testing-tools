@@ -25,7 +25,7 @@ class LCPTests(TestCase):
     """- Check status is always active and check that the updated status document is valid"""
     self.assertTrue(self.status.is_active(), "The license is not active, active state awaited")
     try:
-      status.check_schema()
+      self.status.check_schema()
     except:
       self.fail("Status schema validation failure")
 
