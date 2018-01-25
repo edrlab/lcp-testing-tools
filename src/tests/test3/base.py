@@ -1,4 +1,4 @@
-from  unittest import TestCase
+from unittest import TestCase
 from config.config import TestConfig 
 from lcp.license import License
 from lcp.status import Status
@@ -37,7 +37,7 @@ class Test3(TestCase):
     self.assertTrue(link.startswith('https://'))
 
   def test_e_check_license_mimetype(self):
-    """- Check that the corresponding mime-type is 'application/vnd.readium.lcp.license-1.0+json'"""
+    """- Check that the corresponding mime-type is 'application/vnd.readium.lcp.license.v1.0+json'"""
     status = Status(self.license)
     status.update_status()
     mimetype = status.get_link('license', 'type')
