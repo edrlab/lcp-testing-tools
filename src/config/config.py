@@ -13,7 +13,7 @@ class TestConfig:
 
     with open(config, 'r') as stream:
       yaml_config = yaml.load(stream)
-      self.data = yaml_config['data'][data] if data else None
+      self.data = yaml_config['data'][data] if data else yaml_config['data']
       self.common = yaml_config['common']
 
   # Common config for all tests

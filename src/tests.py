@@ -112,6 +112,15 @@ if __name__ == '__main__':
   now = datetime.now().strftime('%Y%m%d_%H%M%S')
   filename = '{}-{}.log'.format(config.provider(), now)
 
+  # Start with config path verification
+  for data in config.data:
+    if 'license' in config.data[data]:
+      if os.path.isfile(config.data[data]['license']) == False:
+        raise IOError('Missing file {}, please check {}\n'.format(config.data[data]['license'], args.config))
+    if 'epub' in config.data[data]:
+      if os.path.isfile(config.data[data]['epub']) == False:
+        raise IOError('Missing file {}, please check {}\n'.format(config.data[data]['license'], args.config))
+
   with open(filename, 'w') as logfile:
     for testsuite in TESTSUITES:
       if not testsuite['id'] in filt and not args.filter == 'all':
