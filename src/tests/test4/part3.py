@@ -5,13 +5,14 @@ from lcp.status import Status
 
 class LCPTests(TestCase):
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('b1')
-    license = License(self.config.license())
+    cls.config = TestConfig('b1')
+    license = License(cls.config.license())
     # Get status from config license
-    self.status = Status(license)
-    self.status.update_status()
+    cls.status = Status(license)
+    cls.status.update_status()
 
   def test_a_register_without_id_and_name(self):
     """- Register b1 without id and name string parameters and check that the server returns an error"""

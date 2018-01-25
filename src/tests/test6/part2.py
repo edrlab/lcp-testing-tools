@@ -7,14 +7,15 @@ class LCPTests(TestCase):
 
   ADAY = 86400 
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('l1')
-    license = License(self.config.license())
+    cls.config = TestConfig('l1')
+    license = License(cls.config.license())
     # Get status from config license
-    self.status = Status(license)
-    self.status.update_status()
-    self.end = license.get_end()
+    cls.status = Status(license)
+    cls.status.update_status()
+    cls.end = license.get_end()
 
   def test_a_register_device_for_loan_license(self):
     """- Register the device for l1"""

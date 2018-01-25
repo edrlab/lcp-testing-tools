@@ -5,14 +5,15 @@ from lcp.status import Status
 
 class LCPTests(TestCase):
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('b1')
-    license = License(self.config.license())
+    cls.config = TestConfig('b1')
+    license = License(cls.config.license())
     # Get status from config license
-    self.status = Status(license)
-    self.status.update_status()
-    self.original_time = self.status.get_updated_status()
+    cls.status = Status(license)
+    cls.status.update_status()
+    cls.original_time = cls.status.get_updated_status()
 
   def test_a_check_status_ready(self):
     """- Check the current status is 'ready'"""
@@ -38,8 +39,7 @@ class LCPTests(TestCase):
 
   def test_e_updated_time(self):
     """- Check the the 'updated.status' timestamp has been updated"""
-    updated = self.status.get_updated_status()
-    self.assertLess(self.original_time, updated, "The status update time need to be updated after a register action")
+    self.assertLess(self.original_time, self.status.get_updated_status(), "The status update time need to be updated after a register action")
     
   def test_f_register_event(self):
     """- Test if a new register event appears in the status document"""

@@ -5,22 +5,22 @@ from .base import Test3
 from tests.test1.base import Test1
 
 class LCPTests1(Test3):
-
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('b1')
-    self.license = License(self.config.license())
+    cls.config = TestConfig('b1')
+    cls.license = License(cls.config.license())
 
 
 class LCPTests2(Test1):
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('b1')
-    license = License(self.config.license())
+    cls.config = TestConfig('b1')
+    license = License(cls.config.license())
     status = Status(license)
     status.update_status()
 
     # Get license from status
-    self.license = status.update_license()
- 
+    cls.license = status.update_license()

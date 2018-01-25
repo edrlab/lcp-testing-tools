@@ -5,9 +5,10 @@ from lcp.status import Status
 
 class LCPTests(TestCase):
 
-  def setUp(self):
-    self.config = TestConfig('b3')
-    self.license = License(self.config.license())
+  @classmethod
+  def setUpClass(cls):
+    cls.config = TestConfig('b3')
+    cls.license = License(cls.config.license())
 
   def test_a_check_status_cancelled(self):  
     """- Fetch the status document from this url and Check that the status is 'cancelled' """

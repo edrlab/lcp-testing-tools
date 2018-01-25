@@ -7,22 +7,24 @@ from tests.test1.base import Test1
 
 class LCPTests1(Test3):
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('l1')
-    self.license = License(self.config.license())
+    cls.config = TestConfig('l1')
+    cls.license = License(cls.config.license())
 
 
 class LCPTests2(Test1):
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('l1')
-    license = License(self.config.license())
+    cls.config = TestConfig('l1')
+    license = License(cls.config.license())
     # Get status from config license
     status = Status(license)
     status.update_status()
-    self.license = status.update_license()
+    cls.license = status.update_license()
     
   # test from a -> g are in test1
 

@@ -13,7 +13,6 @@ class LCPTests(TestCase):
     cls.status.update_status()
     cls.original_time = cls.status.get_updated_status()
     cls.original_events = cls.status.get_events()
-    print len(cls.original_events)
 
   def test_a_check_status_active(self):
     """- Check the current status is 'active'"""

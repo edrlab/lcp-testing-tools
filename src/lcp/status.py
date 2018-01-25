@@ -90,6 +90,9 @@ class Status():
   def is_revoked(self):
     return self.status['status'] == self.REVOKED
 
+  def get_status(self):
+    return self.status['status']
+
   def register(self, deviceid, devicename):
     link = self.get_link(self.REGISTER)
     if link['templated']:
