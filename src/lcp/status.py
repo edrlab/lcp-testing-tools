@@ -90,6 +90,9 @@ class Status():
   def is_revoked(self):
     return self.status['status'] == self.REVOKED
 
+  def is_returned(self):
+    return self.status['status'] == self.RETURNED
+
   def get_status(self):
     return self.status['status']
 
@@ -102,6 +105,18 @@ class Status():
 
   def register(self, deviceid, devicename):
     link = self.get_link(self.REGISTER)
+    if link is None:
+      return
+    if link['templated']:
+      regurl = expand(link['href'], {'id': deviceid, 'name':devicename})
+      self.status = json.loads(self._post(regurl))
+    else:
+      self.status = json.loads(self._post(link['href']))
+
+  def licensereturn(self, deviceid, devicename):
+    link = self.get_link(self.RETURN)
+    if link is None:
+      return
     if link['templated']:
       regurl = expand(link['href'], {'id': deviceid, 'name':devicename})
       self.status = json.loads(self._post(regurl))
