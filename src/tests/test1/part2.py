@@ -4,10 +4,10 @@ from .base import Test1
 
 class LCPTests(Test1):
 
-  def setUp(self):
-    # get config
-    self.config = TestConfig('l1')
-    self.license = License(self.config.license())
+  @classmethod
+  def setUpClass(cls):
+    cls.config = TestConfig('l1')
+    cls.license = License(cls.config.license())
 
   # test from a -> g are in test1
 

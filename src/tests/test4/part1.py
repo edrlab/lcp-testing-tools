@@ -34,13 +34,21 @@ class LCPTests(TestCase):
 
   def test_d_check_status_active(self):
     """- Check that a new status is 'active'"""
-    self.assertTrue(self.status.is_active())
+    self.assertTrue(self.status.is_active(), "After a register, the license has to be active")
 
   def test_e_updated_time(self):
     """- Check the the 'updated.status' timestamp has been updated"""
     updated = self.status.get_updated_status()
-    self.assertLess(self.original_time, updated)
+    self.assertLess(self.original_time, updated, "The status update time need to be updated after a register action")
     
   def test_f_register_event(self):
     """- Test if a new register event appears in the status document"""
-    pass
+    events = self.status.get_events()
+    if not events is None:
+      found = False
+      for event in self.status.get_events():
+        if event['type'] == 'register' and event['id'] == self.status.DEVICEID1 and event['name'] == self.status.DEVICENAME1: 
+          found = True
+
+      self.assertTrue(found, "The register event is not available in the event list")
+

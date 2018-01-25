@@ -7,11 +7,12 @@ from tests.test1.base import Test1
 
 class LCPTests(Test1):
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('e1')
-    epub = ePub(self.config.epub())
-    self.license = License(epub.read(epub.LCP_LICENSE), raw = True)
+    cls.config = TestConfig('e1')
+    epub = ePub(cls.config.epub())
+    cls.license = License(epub.read(epub.LCP_LICENSE), raw = True)
 
   # test a -> g are in test1
   def test_h_check_start(self):

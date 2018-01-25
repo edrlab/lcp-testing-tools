@@ -5,14 +5,15 @@ from lcp.status import Status
 
 class LCPTests(TestCase):
 
-  def setUp(self):
-    # get config
-    self.config = TestConfig('b1')
-    license = License(self.config.license())
-    # Get status from config license
-    self.status = Status(license)
-    self.status.update_status()
-    self.original_time = self.status.get_updated_status()
+  @classmethod
+  def setUpClass(cls):
+    cls.config = TestConfig('b1')
+    license = License(cls.config.license())
+    cls.status = Status(license)
+    cls.status.update_status()
+    cls.original_time = cls.status.get_updated_status()
+    cls.original_events = cls.status.get_events()
+    print len(cls.original_events)
 
   def test_a_check_status_active(self):
     """- Check the current status is 'active'"""
@@ -20,7 +21,6 @@ class LCPTests(TestCase):
 
   def test_b_register_again(self):
     """- Register b1 again with the same id and name string parameters"""
-    # Save updated.status to compare on test_e...
     self.status.register(self.status.DEVICEID1, self.status.DEVICENAME1)
 
   def test_c_check_status_schema(self):
@@ -37,4 +37,4 @@ class LCPTests(TestCase):
     
   def test_f_register_event(self):
     """- Test that NO new register event appears in the status document"""
-    pass
+    self.assertEquals(len(self.original_events), len(self.status.get_events()))

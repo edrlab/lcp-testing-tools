@@ -6,11 +6,12 @@ from os.path import splitext
 
 class LCPTests(TestCase):
 
-  def setUp(self):
+  @classmethod
+  def setUpClass(cls):
     # get config
-    self.config = TestConfig('e1')
-    self.epub = ePub(self.config.epub())
-    self.encxml = self.epub.get_encryption_xml()
+    cls.config = TestConfig('e1')
+    cls.epub = ePub(cls.config.epub())
+    cls.encxml = cls.epub.get_encryption_xml()
 
   def test_a_check_encryptionxml(self):
     """- Check that encryption.xml is present in the protected publication"""

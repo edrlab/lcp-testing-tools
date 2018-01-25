@@ -65,7 +65,7 @@ class Status():
     return jsonvalidate(self.status, self.schema)
 
   def get_events(self):
-    return self.status.get('events', None) 
+    return self.status.get('events', None)
 
   def get_link(self, name, param=None):
     for link in self.status['links']:
