@@ -93,6 +93,9 @@ class Status():
   def is_returned(self):
     return self.status['status'] == self.RETURNED
 
+  def is_expired(self):
+    return self.status['status'] == self.EXPIRED
+
   def get_status(self):
     return self.status['status']
 

@@ -13,7 +13,6 @@ class LCPTests(TestCase):
     # Get status from config license
     cls.status = Status(license)
     cls.status.update_status()
-    cls.end = license.get_end()
 
   def test_a_return_license(self):
     """- Request a return, with a proper id and name"""
@@ -36,5 +35,5 @@ class LCPTests(TestCase):
 
   def test_d_check_return_again(self):
     """- Check that a 'register' request returns an error."""
-    with self.assertRaisesRegexp(IOError, 'PUT .* HTTP error 400$'):
-      self.status.licensereturn(self.status.DEVICEID1, self.status.DEVICENAME1)
+    with self.assertRaisesRegexp(IOError, 'PUT .* HTTP error 4[0-9][0-9]$'):
+      self.status.register(self.status.DEVICEID1, self.status.DEVICENAME1)

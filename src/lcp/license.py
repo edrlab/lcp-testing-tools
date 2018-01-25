@@ -2,7 +2,6 @@ import json
 from jsonschema import validate as jsonvalidate
 from dateutil.parser import parse as dateparse
 import calendar
-import codecs
 
 from config.config import TestConfig
 

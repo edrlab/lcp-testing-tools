@@ -27,6 +27,7 @@ TESTSUITES=[
   {'id': 'test6.6', 'module': 'tests.test6.part6', 'title': 'Test6.6 Check renew with erroneous timestamp'},
   {'id': 'test6.7', 'module': 'tests.test6.part7', 'title': 'Test6.7 Check renew potential_right'},
   {'id': 'test7.1', 'module': 'tests.test7.part1', 'title': 'Test7.1 Check return behavior'},
+  {'id': 'test8.1', 'module': 'tests.test8.part1', 'title': 'Test8.1 Check expiration behavior'},
 ]
 
 def get_tests(module):
