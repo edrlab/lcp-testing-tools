@@ -6,7 +6,7 @@ from datetime import datetime
 import requests
 from uritemplate import expand
 
-from config.testconfig import TestConfig
+from config.config import TestConfig
 from .license import License
 
 class Status():

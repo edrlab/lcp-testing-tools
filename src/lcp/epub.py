@@ -1,7 +1,7 @@
 import zipfile
 from lxml import etree
 
-from config.testconfig import TestConfig
+from config.config import TestConfig
 
 
 class EncryptionXml():
