@@ -2,6 +2,7 @@ import json
 from jsonschema import validate as jsonvalidate
 from dateutil.parser import parse as dateparse
 import calendar
+import codecs
 
 from config.config import TestConfig
 
@@ -16,11 +17,9 @@ class License():
     if raw == False:
       with open(licensename, 'r') as license:
         self.license = json.load(license)
-        license.seek(0)
-        self.rawlicense = str(license.read())
     else:
-      self.license = json.loads(licensename)
-      self.rawlicense = str(licensename)
+      self.license = json.loads(licensename.decode('utf-8'))
+    self.rawlicense = json.dumps(self.license)
 
     with open(self.config.license_schema(), 'r') as schema:
       self.schema = json.load(schema)
@@ -30,13 +29,13 @@ class License():
  
   # All the useful getters
   def get_id(self):
-    return str(self.license['id'])
+    return self.license['id']
 
   def get_certificate(self):
-    return str(self.license['signature']['certificate'])
+    return self.license['signature']['certificate']
 
   def get_signature(self):
-    return str(self.license['signature']['value'])
+    return self.license['signature']['value']
 
   def get_link(self, name, param=None):
     for link in self.license['links']:
@@ -55,7 +54,7 @@ class License():
     return int(unix_time)
 
   def get_user_key_hash_algo(self):
-    return str(self.license['encryption']['user_key']['algorithm'])
+    return self.license['encryption']['user_key']['algorithm']
 
   def get_start(self):
     start = self.license['rights'].get('start', None) if 'rights' in self.license else None
@@ -76,7 +75,7 @@ class License():
 
   # get content key
   def get_content_key(self):
-    return self.crypto.base64_decode(str(self.license['encryption']['content_key']['encrypted_value']))
+    return self.crypto.base64_decode(self.license['encryption']['content_key']['encrypted_value'])
 
   # compute canonical form 
   def get_canonical(self):
@@ -88,10 +87,10 @@ class License():
 
   # def check user key
   def check_user_key(self, passphrase):
-    user_key_hash_algo = str(self.license['encryption']['user_key']['algorithm'])
-    content_key_encryption_algo = str(self.license['encryption']['content_key']['algorithm'])
-    key_check = str(self.license['encryption']['user_key']['key_check'])
-    license_id = str(self.license['id'])
+    user_key_hash_algo = self.license['encryption']['user_key']['algorithm']
+    content_key_encryption_algo = self.license['encryption']['content_key']['algorithm']
+    key_check = self.license['encryption']['user_key']['key_check']
+    license_id = self.license['id']
     return self.crypto.check_userkey(passphrase, user_key_hash_algo,
                 key_check, license_id, content_key_encryption_algo)
 

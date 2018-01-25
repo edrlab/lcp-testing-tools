@@ -30,7 +30,7 @@ class TestConfig:
     return self.common['status']['schema']
 
   def cacert(self):
-    return str(self.common['crypto']['cacert'])
+    return self.common['crypto']['cacert']
 
   def crypto_package(self):
     sys.path.insert(0, self.common['crypto']['package'])
@@ -41,7 +41,7 @@ class TestConfig:
     return self.data['license']
 
   def passphrase(self):
-    return str(self.data['passphrase'])
+    return self.data['passphrase']
 
   def epub(self):
     return self.data['epub']
