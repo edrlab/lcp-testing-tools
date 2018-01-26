@@ -15,11 +15,11 @@ class LCPTests(TestCase):
     cls.status = Status(license)
     cls.status.update_status()
 
-  def test_a_return_license(self):
+  def test_a_license_status_is_expired(self):
     """- Check that the status is 'expired'"""
     self.assertTrue(self.status.is_expired(), "The awaited status is expired, the current status is {}".format(self.status.get_status()))
 
-  def test_b_check_return_again(self):
+  def test_b_check_register_on_expired(self):
     """- Check that a 'register' request returns an error."""
     with self.assertRaisesRegexp(IOError, 'PUT .* HTTP error 4[0-9][0-9]$'):
       self.status.register(self.status.DEVICEID1, self.status.DEVICENAME1)
