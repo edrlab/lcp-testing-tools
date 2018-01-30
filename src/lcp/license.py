@@ -7,7 +7,7 @@ from config.config import TestConfig
 
 class License():
 
-  LICENSE_MIMETYPE='application/vnd.readium.lcp.license.1.0+json'
+  LICENSE_MIMETYPE='application/vnd.readium.lcp.license.v1.0+json'
   PUBLICATION_MIMETYPE="application/epub+zip"
   STATUS_MIMETYPE="application/vnd.readium.license.status.v1.0+json"
 

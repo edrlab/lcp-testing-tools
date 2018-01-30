@@ -14,10 +14,11 @@ class LCPTests(TestCase):
     # Get status from config license
     cls.status = Status(license)
     cls.status.update_status()
+    license = cls.status.update_license()
     cls.end = license.get_end()
 
-  def test_a_renew_license_before_end_date(self):
-    """- Request a loan extension for 2 days after the current end date, with a proper id and name"""
+  def test_a_renew_license_nodevice(self):
+    """- Request a loan extension for 2 days after the current end date, with NO id nor name"""
     self.assertTrue(self.status.is_active(), "The license is not active, active state awaited")
     self.status.renewnodevice(self.end+2*self.ADAY)
 

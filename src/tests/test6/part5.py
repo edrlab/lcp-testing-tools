@@ -14,6 +14,7 @@ class LCPTests(TestCase):
     # Get status from config license
     cls.status = Status(license)
     cls.status.update_status()
+    license = cls.status.update_license()
     cls.end = license.get_end()
 
   def test_a_renew_license_before_end_date(self):

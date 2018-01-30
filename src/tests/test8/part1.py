@@ -21,7 +21,7 @@ class LCPTests(TestCase):
 
   def test_b_check_register_on_expired(self):
     """- Check that a 'register' request returns an error."""
-    with self.assertRaisesRegexp(IOError, 'PUT .* HTTP error 4[0-9][0-9]$'):
+    with self.assertRaisesRegexp(IOError, 'POST .* HTTP error 4[0-9][0-9]$'):
       self.status.register(self.status.DEVICEID1, self.status.DEVICENAME1)
 
   def test_c_check_license_end(self):
