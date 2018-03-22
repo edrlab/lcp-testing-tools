@@ -74,7 +74,7 @@
       "type:": "object",
 			"properties": {
 				"profile": {
-					"enum": ["http://readium.org/lcp/basic-profile","http://readium.org/lcp/profile-1.0"]
+          "enum": ["http://readium.org/lcp/basic-profile","http://readium.org/lcp/profile-1.0"]
 				},
 				"content_key": {
 					"type": "object",

@@ -1,0 +1,21 @@
+common:
+  license:
+    # Path to license schema
+    schema: '/home/me/lcp-testing-tools/schema/lcpl_schema.json'
+  crypto:
+    # Path to LCP specific crypto package
+    package: '/home/me/lcp-testing-tools-crypto/build/lcptests'
+    cacert: '/home/me/certs/cacert.pem'
+
+
+test1.1:
+  license: '/home/me/licenses/b1.lcpl'
+  passphrase: 'test_passphrase'
+
+test1.2:
+  license: '/home/me/licenses/l1.lcpl'
+  passphrase: 'test_passphrase'
+
+test2.1:
+  epub: '/home/me/epub/e1'
+  passphrase: 'test_passphrase'
