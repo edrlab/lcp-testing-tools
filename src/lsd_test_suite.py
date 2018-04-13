@@ -185,10 +185,10 @@ class LSDTestSuite(BaseTestSuite):
         for l in self.lsd['links']:
             if l['rel'] == 'license':
                 res +=1
-                if l['type'] != None and l['type'] != "application/vnd.readium.lcp.license-1.0+json":
+                if l['type'] != None and l['type'] != "application/vnd.readium.lcp.license.v1.0+json":
                     LOGGER.info("license link has type {}".format(l['type'])) 
                     raise TestSuiteRunningError(
-                        "A 'license' link must have an 'application/vnd.readium.lcp.license-1.0+json' type")              
+                        "A 'license' link must have an 'application/vnd.readium.lcp.license.v1.0+json' type")              
 
             if l['rel'] == 'register':
                 res +=1 
