@@ -36,9 +36,9 @@ class BaseTestSuite:
 
         try:
             # Initialize tests
-            LOGGER.debug("Initialization start")
+            #LOGGER.debug("Initialization start")
             self.initialize()
-            LOGGER.debug("Initialization end")
+            #LOGGER.debug("Initialization end")
 
             # Run every test
             for method_name in test_methods:
@@ -51,9 +51,9 @@ class BaseTestSuite:
             return False
         finally:
             # Clean tests
-            LOGGER.debug("Finalize start")
+            #LOGGER.debug("Finalize start")
             self.finalize()
-            LOGGER.debug("Finalize end")
+            #LOGGER.debug("Finalize end")
 
         return True
 
