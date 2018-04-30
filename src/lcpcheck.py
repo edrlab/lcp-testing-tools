@@ -21,8 +21,8 @@ def main():
     parser.add_argument("-v", "--verbosity", action="count", help="increase output verbosity")
     parser.add_argument("-c", "--config", help="path to the yaml configuration file")
     parser.add_argument("-f", "--file", nargs='?', const='-', help="check a protected file, retrieve a license; don't give the path to an LCP protected epub file if -e is used.")
-    parser.add_argument("-l", "--lcpl", nargs='?', const='-', help="check an LCP license; don't give the path to an LCP license if -p  is used")
-    parser.add_argument("-s", "--lsd", nargs='?', const='-', help="launch lsd tests; don't give the path to an LCP license if -p or -l is used")
+    parser.add_argument("-l", "--lcpl", nargs='?', const='-', help="check an LCP license; don't give the path to an LCP license if -f  is used")
+    parser.add_argument("-s", "--lsd", nargs='?', const='-', help="launch lsd tests; don't give the path to an LCP license if -f or -l is used")
     args = parser.parse_args()
 
     # Initialize logger 
