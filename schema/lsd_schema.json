@@ -78,7 +78,7 @@
 				}
 			},
 			"additionalProperties": false,
-			"required": ["type","id","name","timestamp"]
+			"required": ["type","timestamp"]
 		}
 	},
 	"properties": {
