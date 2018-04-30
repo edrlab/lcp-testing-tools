@@ -1,5 +1,6 @@
 import json
-from jsonschema import validate as jsonvalidate
+#from jsonschema import validate as jsonvalidate
+import jsonschema
 from dateutil.parser import parse as dateparse
 import time
 
@@ -7,7 +8,7 @@ from config.testconfig import TestConfig
 
 class License():
   def __init__(self, licensename, schemaname):
-    with open(licensename, 'r') as license, open(schemaname, 'r') as schema:
+    with open(licensename, 'r', encoding='utf8') as license, open(schemaname, 'r', encoding='utf8') as schema:
       self.license = json.load(license)
       self.schema = json.load(schema)
       license.seek(0)
@@ -68,7 +69,13 @@ class License():
 
   # check schema
   def check_schema(self):
-    return jsonvalidate(self.license, self.schema)
+    valid = True
+    try:
+      jsonschema.validate(self.license, self.schema, format_checker=jsonschema.FormatChecker())
+    except jsonschema.ValidationError as err:
+      print ("License KO: {}".format(err))
+      valid = False
+    return valid
 
   # def check user key
   def check_user_key(self, passphrase):
