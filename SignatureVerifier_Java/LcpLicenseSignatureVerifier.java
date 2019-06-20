@@ -401,6 +401,9 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 			} else if (jsonObj instanceof Double) {
 				//  NOOP
 
+			} else if (jsonObj instanceof Boolean) {
+				//  NOOP
+
 			} else if (jsonObj instanceof ArrayList) {
 				ArrayList arr = (ArrayList)jsonObj;
 				
