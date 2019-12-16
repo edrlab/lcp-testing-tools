@@ -73,7 +73,7 @@ class LCPLTestSuite(BaseTestSuite):
 
 
     def test_key_check(self):
-        # check the format of the content key
+        # check the format of the key check
         try:
             self.license.check_key_check(self.config.cmd.user_passphrase)
         except LCPLicenseError as err:
