@@ -5,11 +5,14 @@ from .base import Test3
 from tests.test1.base import Test1
 
 class LCPTests1(Test3):
+
   @classmethod
   def setUpClass(cls):
     # get config
     cls.config = TestConfig('b1')
     cls.license = License(cls.config.license())
+    print("\nlicence name", cls.config.license())
+
 
 
 class LCPTests2(Test1):

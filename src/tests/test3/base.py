@@ -11,7 +11,7 @@ class Test3(TestCase):
     self.assertTrue(link.startswith('https://'))
 
   def test_b_check_status_document(self):
-    """- Check that the JSON document is valid, using the corresponding JSON schema"""
+    """- Fetch the status document and check that it is valid, using the corresponding JSON schema"""
     status = Status(self.license)
     status.update_status()
     self.assertIsNotNone(status)
@@ -29,7 +29,7 @@ class Test3(TestCase):
 
 
   def test_d_check_status_license_link(self):
-    """- Check if the 'license' link is a valid https url"""
+    """- Check that the 'license' link from the status document is a valid https url"""
     status = Status(self.license)
     status.update_status()
     link = status.get_link('license', 'href')

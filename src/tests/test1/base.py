@@ -4,7 +4,7 @@ class Test1(TestCase):
   longMessage = True
   """Basic LCP license testing"""
   def test_a_check_license_schema(self):
-    """- Check b1 using the JSON schema provided by EDRLab"""
+    """- Check license validity using the JSON schema provided by EDRLab"""
     try:
       self.license.check_schema()
     except:
