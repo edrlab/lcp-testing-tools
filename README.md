@@ -38,6 +38,7 @@ pip3 install pyopenssl
 pip3 install strict-rfc3339
 pip3 install rfc3987
 pip3 install python-dateutil
+pip3 install uritemplate
 ```
 
 ## Configuration file
