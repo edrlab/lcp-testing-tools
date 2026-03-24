@@ -62,3 +62,11 @@ qhGRLy/wMBsZ2AZEux17m6h8ead+1Eh7qCkVtLMPj18zthimKhmAzR9UODNO8adb
 28V6rdu3cxE=
 -----END CERTIFICATE-----
 ```
+
+Go checker command line utility:
+
+https://github.com/edrlab/lcp-server/blob/main/cmd/lcpchecker/lcpchecker.go
+
+With the `PLCP` tag in `go build` and `CGO_ENABLED=1`, we need to copy `user_key_prod.go` and `userkey.h` and `libuserkey.a` into `./pkg/lic`, then run:
+
+`set -xv ; container --version ; container system stop ; container system start ; container system status ; container stop test-container ; container rm --force test-container ; container prune ; container list --all ; container run --cpus 4 --memory 2g --platform linux/arm64 --name test-container --volume ${PWD}:/MOUNT -w /MOUNT golang:1.26 sh -c 'set -xv ; go version ; go env ; CGO_ENABLED=1 go build -v -tags "PLCP" -o ./cmd/lcpchecker ./cmd/lcpchecker ; ./cmd/lcpchecker/lcpchecker -passphrase XXXXX -level 1 -verbose YYYYY.lcpl' ; container list --all ; container stop test-container ; container rm --force test-container ; container prune ; container system status ; container system stop ; set +xv`
