@@ -56,7 +56,7 @@ import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DEROutputStream;
 
 public class LcpLicenseSignatureVerifier {
-		
+
 	public static final String ANSI_RESET = "\u001B[0m";
 	public static final String ANSI_BLACK = "\u001B[30m";
 	public static final String ANSI_RED = "\u001B[31m";
@@ -91,7 +91,7 @@ public class LcpLicenseSignatureVerifier {
 		"        (relative or absolute path to file with extension '.lcpl')\n" +
 		"        e.g. " + ANSI_PURPLE + "ebook_unzipped/META-INF/license.lcpl" + ANSI_RESET +
 		"\n\n" +
-		
+
 		"The optional command line input parameters are:\n" +
 		"    [3] " + ANSI_GREEN + "verbose\n" + ANSI_RESET +
 		"        (if set, more information will be printed to standard output)\n" +
@@ -101,22 +101,22 @@ public class LcpLicenseSignatureVerifier {
 		"==================================\n" +
 		ANSI_RESET +
 		"\n";
-		
-	
+
+
 	private final Gson m_Gson =
 		new GsonBuilder()
 		.serializeNulls()
 		.disableHtmlEscaping()
 		.registerTypeAdapter(Double.class, new JsonSerializer<Double>() {
-		    @Override
-		    public JsonElement serialize(Double originalValue, Type typeOf, JsonSerializationContext context) {
-		        BigDecimal bigValue = BigDecimal.valueOf(originalValue);
-		        bigValue = new BigDecimal(bigValue.toBigIntegerExact());
-		        return new JsonPrimitive(bigValue);
-		    }
+			@Override
+			public JsonElement serialize(Double originalValue, Type typeOf, JsonSerializationContext context) {
+				BigDecimal bigValue = BigDecimal.valueOf(originalValue);
+				bigValue = new BigDecimal(bigValue.toBigIntegerExact());
+				return new JsonPrimitive(bigValue);
+			}
 		})
 		.create();
-	
+
 	private final File m_certificateFile;
 	private final File m_lcpFile;
 	public LcpLicenseSignatureVerifier(File certificateFile, File lcpFile) {
@@ -143,7 +143,7 @@ public class LcpLicenseSignatureVerifier {
 
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
-			
+
 			System.exit(1); // FAILURE
 			return;
 		}
@@ -154,7 +154,7 @@ public class LcpLicenseSignatureVerifier {
 		try {
 			CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", m_providerName_certificates);
 			m_providerCertificate = (X509Certificate)certificateFactory.generateCertificate(new ByteArrayInputStream(Base64.decode(base64certificate.getBytes())));
-			
+
 			if (m_verbose) {
 				System.out.println("\n\n");
 				System.out.println(ANSI_CYAN + "----------------------------------------------------------" + ANSI_RESET);
@@ -168,7 +168,7 @@ public class LcpLicenseSignatureVerifier {
 
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
-			
+
 			System.exit(2); // FAILURE
 			return;
 		}
@@ -204,7 +204,7 @@ public class LcpLicenseSignatureVerifier {
 			for (String key : lcpJsonMap.keySet()) {
 				if (key.equalsIgnoreCase("signature")) {
 					Map<String, Object> signatureJsonMap = m_Gson.fromJson(m_Gson.toJson(lcpJsonMap.get(key)), type);
-					
+
 					m_lcp_signatureAlgorithmURI = (String)signatureJsonMap.get("algorithm");
 					if (m_verbose) {
 						System.out.println("\n\n");
@@ -218,13 +218,13 @@ public class LcpLicenseSignatureVerifier {
 					if (m_lcp_signatureAlgorithmURI == null
 					|| (!m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
 					&& !m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"))
-					) {					
+					) {
 						System.err.println(ANSI_RED + "### Bad signature algorithm in LCP license [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] ('" + m_lcp_signatureAlgorithmURI + "' should be 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256' or 'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256').\n\n" + ANSI_RESET);
 
 						System.exit(3); // FAILURE
 						return;
 					}
-					
+
 					m_lcp_signature = (String)signatureJsonMap.get("value");
 					if (m_verbose) {
 						System.out.println("\n\n");
@@ -248,7 +248,7 @@ public class LcpLicenseSignatureVerifier {
 					break;
 				}
 			}
-			
+
 			Iterator<Map.Entry<String, Object>> iter = lcpJsonMap.entrySet().iterator();
 			while (iter.hasNext()) {
 				Map.Entry<String, Object> entry = iter.next();
@@ -283,7 +283,7 @@ public class LcpLicenseSignatureVerifier {
 
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
-			
+
 			System.exit(4); // FAILURE
 			return;
 		}
@@ -306,7 +306,7 @@ public class LcpLicenseSignatureVerifier {
 
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
-			
+
 			System.exit(5); // FAILURE
 			return;
 		}
@@ -335,9 +335,9 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG BASE64 ENCODED: " + lcp_signa
 
 			byte[] lcp_signatureBytes = Base64.decode(lcp_signatureBytes_b64);
 if (m_verbose) System.out.println(ANSI_BLUE + "SIG BASE64 DECODED: " + lcp_signatureBytes.length + ANSI_RESET);
-        	
+
 			byte[] lcp_signatureBytes_TO_VERIFY = lcp_signatureBytes;
-			
+
 			if (m_lcp_signatureAlgorithmURI.equalsIgnoreCase("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256")) {
 				byte[] r = Arrays.copyOfRange(lcp_signatureBytes, 0, lcp_signatureBytes.length / 2);
 				byte[] s = Arrays.copyOfRange(lcp_signatureBytes, lcp_signatureBytes.length / 2, lcp_signatureBytes.length);
@@ -356,7 +356,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 
 
 			boolean verified = signatureVerifier.verify(lcp_signatureBytes_TO_VERIFY);
-			
+
 			if (verified) {
 				System.out.println("\n\n");
 				System.out.println(ANSI_GREEN + "### VALID SIGNATURE ###" + ANSI_RESET);
@@ -375,16 +375,16 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
-			
+
 			System.exit(8); // FAILURE
 			return;
 		}
 	}
-	
+
 	// Recursive function
 	@SuppressWarnings("unchecked")
 	private TreeMap<String, Object> sortJsonKeysAlphabetically(String jsonString) {
-		
+
 		TreeMap<String, Object> jsonMap = m_Gson.fromJson(jsonString, TreeMap.class);
 
 		for(String key : jsonMap.keySet()) {
@@ -406,7 +406,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 
 			} else if (jsonObj instanceof ArrayList) {
 				ArrayList arr = (ArrayList)jsonObj;
-				
+
 				for (int i = 0; i < arr.size(); i++) {
 					Object subJsonObj = arr.get(i);
 
@@ -430,10 +430,10 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 
 		return jsonMap;
 	}
-	
-	
+
+
 	private boolean m_verbose = false;
-	
+
 	String m_providerName_certificates = "SUN";
 	String m_providerName_ecdsa = "SunEC";
 	String m_providerName_rsa = "SunRsaSign";
@@ -458,6 +458,44 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 
 		// m_rootCertificate
 		loadRootCertificate();
+		try {
+			m_rootCertificate.checkValidity();
+		} catch (Exception e) { // CertificateExpiredException
+			System.out.println("\n\n");
+			System.err.println(ANSI_RED + "### Warning validating root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_RED + "].\n\n" + ANSI_RESET);
+
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
+
+			// System.exit(8); // FAILURE
+			// return;
+		} finally {
+			if (m_verbose) {
+				System.out.println("\n\n");
+				System.out.println(ANSI_BLUE + "### DONE validating root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_BLUE + "].\n\n" + ANSI_RESET);
+				System.out.println("\n\n");
+			}
+		}
+		PublicKey m_rootCertificatePubKey = m_rootCertificate.getPublicKey();
+		try {
+				Signature m_rootCertificatePubKeySig = m_rootCertificatePubKey.getAlgorithm() == "EC" ? Signature.getInstance("SHA256withECDSA","SunEC") : Signature.getInstance("SHA256withRSA"); // EC or RSA
+			m_rootCertificatePubKeySig.initVerify(m_rootCertificatePubKey);
+		} catch (Exception e) { // NoSuchAlgorithmException InvalidKeyException
+			System.out.println("\n\n");
+			System.err.println(ANSI_RED + "### Warning verifying public key (" + m_rootCertificatePubKey.getAlgorithm() + ") of root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_RED + "] using public key [" + ANSI_YELLOW + m_rootCertificatePubKey + ANSI_RED + "].\n\n" + ANSI_RESET);
+
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
+
+			// System.exit(8); // FAILURE
+			// return;
+		} finally {
+			if (m_verbose) {
+				System.out.println("\n\n");
+				System.out.println(ANSI_BLUE + "### DONE verifying public key (" + m_rootCertificatePubKey.getAlgorithm() + ") of root certificate from [" + ANSI_YELLOW + m_certificateFile.getAbsolutePath() + ANSI_BLUE + "] using public key [" + ANSI_YELLOW + m_rootCertificatePubKey + ANSI_RED + "].\n\n" + ANSI_RESET);
+				System.out.println("\n\n");
+			}
+		}
 
 		// m_lcp_base64certificate
 		// m_lcp_canonicalJsonString
@@ -467,21 +505,59 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 
 		// m_providerCertificate
 		loadProviderCertificate(m_lcp_base64certificate);
+		try {
+			m_providerCertificate.checkValidity();
+		} catch (Exception e) { // CertificateExpiredException
+			System.out.println("\n\n");
+			System.err.println(ANSI_RED + "### Warning validating provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "].\n\n" + ANSI_RESET);
+
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
+
+			// System.exit(8); // FAILURE
+			// return;
+		} finally {
+			if (m_verbose) {
+				System.out.println("\n\n");
+				System.out.println(ANSI_BLUE + "### DONE validating provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_BLUE + "].\n\n" + ANSI_RESET);
+				System.out.println("\n\n");
+			}
+		}
+		PublicKey m_providerCertificatePubKey = m_providerCertificate.getPublicKey();
+		try {
+			Signature m_providerCertificatePubKeySig = m_providerCertificatePubKey.getAlgorithm() == "EC" ? Signature.getInstance("SHA256withECDSA","SunEC") : Signature.getInstance("SHA256withRSA"); // EC or RSA
+			m_providerCertificatePubKeySig.initVerify(m_providerCertificatePubKey);
+		} catch (Exception e) { // NoSuchAlgorithmException InvalidKeyException
+			System.out.println("\n\n");
+			System.err.println(ANSI_RED + "### Warning verifying public key (" + m_providerCertificatePubKey.getAlgorithm() + ") of provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_RED + "] using public key [" + ANSI_YELLOW + m_providerCertificatePubKey + ANSI_RED + "].\n\n" + ANSI_RESET);
+
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
+
+			// System.exit(8); // FAILURE
+			// return;
+		} finally {
+			if (m_verbose) {
+				System.out.println("\n\n");
+				System.out.println(ANSI_BLUE + "### DONE verifying public key (" + m_providerCertificatePubKey.getAlgorithm() + ") of provider certificate from [" + ANSI_YELLOW + m_lcpFile.getAbsolutePath() + ANSI_BLUE + "] using public key [" + ANSI_YELLOW + m_providerCertificatePubKey + ANSI_BLUE + "].\n\n" + ANSI_RESET);
+				System.out.println("\n\n");
+			}
+		}
 
 		verifyProviderCertificate(m_providerCertificate, m_rootCertificate);
 
 		verifyLcpSignature(m_lcp_canonicalJsonString, m_lcp_signature, m_providerCertificate);
 	}
-	
+
 	public static void main(String[] args) {
-		
+
 		if (args.length < 2) {
 			System.err.println(ANSI_RED + "### Missing input parameter(s).\n\n" + ANSI_RESET);
 
 			System.err.println(USAGE_INFO);
 			return;
 		}
-		
+
 		String certificateFilePath = args[0];
 		String certificateFilePath_lowerCase = certificateFilePath.toLowerCase();
 		if (!certificateFilePath_lowerCase.endsWith(".crt") && !certificateFilePath_lowerCase.endsWith(".pem") && !certificateFilePath_lowerCase.endsWith(".cer")) {
@@ -490,7 +566,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 			System.err.println(USAGE_INFO);
 			return;
 		}
-	
+
 		File certificateFile = new File(certificateFilePath);
 		if (!certificateFile.exists()) {
 			System.err.println(ANSI_RED + "### Input parameter (1) [" + ANSI_YELLOW + certificateFilePath + ANSI_RED + "] file does not exist.\n\n" + ANSI_RESET);
@@ -498,7 +574,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 			System.err.println(USAGE_INFO);
 			return;
 		}
-		
+
 		String lcpFilePath = args[1];
 		String lcpPath_lowerCase = lcpFilePath.toLowerCase();
 		if (!lcpPath_lowerCase.endsWith(".lcpl")) {
@@ -507,7 +583,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 			System.err.println(USAGE_INFO);
 			return;
 		}
-		
+
 		File lcpFile = new File(lcpFilePath);
 		if (!lcpFile.exists()) {
 			System.err.println(ANSI_RED + "### Input parameter (2) [" + ANSI_YELLOW + lcpFilePath + ANSI_RED + "] file does not exist.\n\n" + ANSI_RESET);
@@ -519,7 +595,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 		boolean verbose = false;
 		if (args.length >= 3 && args[2].equalsIgnoreCase("verbose")) {
 			verbose = true;
-			
+
 			System.out.println("\n\n");
 			System.out.println(ANSI_CYAN + "####################################################################" + ANSI_RESET);
 			System.out.println(ANSI_CYAN + "## MAX VERBOSITY ###################################################" + ANSI_RESET);
@@ -530,7 +606,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 		boolean useBouncyCastle = false;
 		if (args.length >= 4 && args[3].equalsIgnoreCase("bc")) {
 			useBouncyCastle = true;
-			
+
 			System.out.println("\n\n");
 			System.out.println(ANSI_BLUE + "## use BouncyCastle crypto provider ##" + ANSI_RESET);
 			System.out.println("\n\n");
