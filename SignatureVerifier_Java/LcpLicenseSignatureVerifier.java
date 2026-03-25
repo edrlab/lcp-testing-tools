@@ -478,7 +478,7 @@ if (m_verbose) System.out.println(ANSI_BLUE + "SIG DER ASN.1: " + lcp_signatureB
 		}
 		PublicKey m_rootCertificatePubKey = m_rootCertificate.getPublicKey();
 		try {
-				Signature m_rootCertificatePubKeySig = m_rootCertificatePubKey.getAlgorithm() == "EC" ? Signature.getInstance("SHA256withECDSA","SunEC") : Signature.getInstance("SHA256withRSA"); // EC or RSA
+			Signature m_rootCertificatePubKeySig = m_rootCertificatePubKey.getAlgorithm() == "EC" ? Signature.getInstance("SHA256withECDSA","SunEC") : Signature.getInstance("SHA256withRSA"); // EC or RSA
 			m_rootCertificatePubKeySig.initVerify(m_rootCertificatePubKey);
 		} catch (Exception e) { // NoSuchAlgorithmException InvalidKeyException
 			System.out.println("\n\n");
